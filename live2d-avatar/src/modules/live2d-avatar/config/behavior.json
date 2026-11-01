@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "fit": 0.94,
+    "centerY": 0.55
+  },
+  "idle": {
+    "breathBase": 0.28,
+    "breathAmp": 0.15,
+    "breathFreq": 0.21,
+    "swayAmp": 2.4,
+    "swayFreq": 0.09,
+    "nodAmp": 2.8,
+    "nodFreq": 0.067,
+    "turnAmp": 3.6,
+    "turnFreq": 0.053,
+    "bodySwayAmp": 5.0,
+    "bodySwayFreq": 0.045,
+    "bodyNodAmp": 3.6,
+    "bodyTurnAmp": 4.0,
+    "gaze": {
+      "minHold": 2.2,
+      "maxHold": 6.5,
+      "rangeNear": 0.32,
+      "rangeFar": 0.65,
+      "farChance": 0.22,
+      "yScale": 0.6,
+      "saccadeStiffness": 90,
+      "saccadeDamping": 13,
+      "dwellStiffness": 16,
+      "dwellDamping": 8,
+      "driftAmp": 0.045,
+      "driftFreq": 0.4
+    }
+  },
+  "blink": {
+    "minInterval": 1.6,
+    "maxInterval": 5.5,
+    "doubleChance": 0.15,
+    "halfChance": 0.18,
+    "halfAmount": 0.45,
+    "closeTime": 0.09,
+    "holdTime": 0.07,
+    "openTime": 0.12,
+    "doubleGap": 0.1
+  },
+  "emotion": {
+    "valenceTau": 2.2,
+    "arousalTau": 1.2,
+    "mouthForm": 0.55,
+    "browYDown": 0.6,
+    "browYUp": 0.32,
+    "browAngle": 0.6,
+    "browFormUp": 0.5,
+    "browFormDown": 0.4,
+    "eyeSmile": 1.0,
+    "eyeAnger": 1.0,
+    "eyePuff": 0.5,
+    "sleepyEyeClose": 0.18,
+    "surpriseEyeOpen": 0.15,
+    "breathRateMul": 0.45,
+    "breathAmpMul": 0.3,
+    "motionAmpMul": 0.35,
+    "blinkRateMul": 0.6
+  },
+  "social": {
+    "affinityTau": 3.0,
+    "affinityValenceLift": 0.12,
+    "recallEyeOpen": 0.12,
+    "recallBrow": 0.25,
+    "recallGazeDown": -0.2,
+    "startleEyeOpen": 0.35,
+    "startleBrow": 0.5,
+    "startleMouth": 0.3
+  },
+  "hitZones": {
+    "head": { "x": [0.26, 0.80], "y": [0.02, 0.36] },
+    "tail": { "x": [0.70, 1.0], "y": [0.32, 0.84] },
+    "body": { "x": [0.16, 0.84], "y": [0.36, 0.88] }
+  },
+  "drag": {
+    "threshold": 8,
+    "followStiffness": 150,
+    "followDamping": 15,
+    "releaseDamping": 4,
+    "headX": 6,
+    "headY": 13,
+    "headZ": 24,
+    "bodyZ": 14,
+    "gazeX": 0.75,
+    "gazeY": 0.6,
+    "gazeStiffness": 55,
+    "gazeDamping": 9
+  },
+  "reflex": {
+    "head": {
+      "headX": 5,
+      "headY": -16,
+      "headZ": 7,
+      "bodyZ": 2,
+      "blink": 0.9,
+      "gazeX": 0.7,
+      "gazeY": -0.35,
+      "gazeHold": 0.9
+    },
+    "body": {
+      "headX": 4,
+      "headY": -4,
+      "headZ": -5,
+      "bodyZ": 12,
+      "blink": 0.6,
+      "gazeX": 0.5,
+      "gazeY": 0.2,
+      "gazeHold": 0.7
+    },
+    "tail": {
+      "headX": 8,
+      "headY": -6,
+      "headZ": 10,
+      "bodyZ": -15,
+      "blink": 0.8,
+      "gazeX": 0.35,
+      "gazeY": 0.15,
+      "gazeHold": 1.0
+    }
+  },
+  "pose": {
+    "lerp": 2.5,
+    "autoMin": 8,
+    "autoMax": 18,
+    "tapHold": 3.5,
+    "tapPose": { "head": "tilt", "body": "curious", "tail": "shy" },
+    "poses": {
+      "idle": {},
+      "tilt": { "ParamAngleZ": 7, "ParamBodyAngleZ1": 2, "ParamBodyAngleZ2": 1 },
+      "curious": { "ParamAngleZ": 5, "ParamAngleY": 3, "ParamBodyAngleZ1": -1 },
+      "side": { "ParamBodyAngleY": 5, "ParamAngleY": -4, "ParamBodyAngleZ1": 2 },
+      "shy": { "ParamAngleX": -6, "ParamBodyAngleX": 2, "ParamBodyAngleZ11": -2, "Param_arm_L2": 0.4 },
+      "stretch": { "ParamAngleX": 5, "ParamBodyAngleX": -3, "ParamBodyAngleZ1": -3, "ParamBodyAngleZ2": -2, "Param_arm_L1": -0.4, "Param_arm_R1": -0.4 },
+      "turn": { "ParamBodyAngleY": 7, "ParamAngleY": -5, "ParamBodyAngleZ22": 2 },
+      "relax": { "ParamAngleZ": -4, "ParamBodyAngleZ1": -2, "ParamBodyAngleX": 1 },
+      "sad": { "ParamAngleX": -8, "ParamBodyAngleX": 3, "ParamBodyAngleZ1": -2, "ParamBodyAngleZ11": -2 },
+      "angry": { "ParamBodyAngleX": -3, "ParamAngleZ": 4, "Param_arm_L1": -0.3, "Param_arm_R1": -0.3, "ParamBodyAngleZ1": 1 }
+    }
+  }
+}

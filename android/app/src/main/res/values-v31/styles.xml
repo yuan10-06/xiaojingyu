@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ 系统启动画面：深海底色 + 透明图标，避免先闪一下应用图标 -->
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/whale_deep</item>
+        <item name="android:colorBackground">@color/whale_deep</item>
+        <item name="android:windowSplashScreenBackground">@color/whale_deep</item>
+        <!-- 透明图标：避免系统启动画面先闪一下应用图标 -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_blank</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+    </style>
+</resources>

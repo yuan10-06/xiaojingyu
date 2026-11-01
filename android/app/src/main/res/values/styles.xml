@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深海底色：启动窗口和空窗都铺这个色，不再白屏闪一下 -->
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/whale_deep</item>
+        <item name="android:colorBackground">@color/whale_deep</item>
+    </style>
+
+    <!-- AR 页：窗口必须透明，后置相机由 SurfaceView 透上来 -->
+    <style name="ArPetTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+</resources>

@@ -1,0 +1,2196 @@
+{
+  "model": "大肥鱼",
+  "sourceFolder": "大肥鱼-B站",
+  "moc3Version": 5,
+  "texture": {
+    "source": "大肥鱼.8192/texture_00.png",
+    "sourceSize": [
+      8192,
+      8192
+    ],
+    "mobileTarget": 4096,
+    "fallback": 2048,
+    "note": "源贴图 8192，移动端必须生成缩略贴图；模型 UV 不变，不能裁剪或改动 moc3。",
+    "runtime": "public/live2d/whale_girl/大肥鱼.8192/texture_00.png"
+  },
+  "counts": {
+    "parameters": 174,
+    "parts": 76,
+    "groups": 10,
+    "expressions": 15,
+    "partsCore": 35,
+    "drawables": 136
+  },
+  "parameters": [
+    {
+      "id": "PARAM_EXP1",
+      "name": "1 口型切换",
+      "group": "ParamGroup4",
+      "groupName": "按键-表情",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "PARAM_EXP2",
+      "name": "2 龇牙 3嘴",
+      "group": "ParamGroup4",
+      "groupName": "按键-表情",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "PARAM_EXP3",
+      "name": "3 脸黑",
+      "group": "ParamGroup4",
+      "groupName": "按键-表情",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "PARAM_EXP4",
+      "name": "4 脸红",
+      "group": "ParamGroup4",
+      "groupName": "按键-表情",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "PARAM_EXP5",
+      "name": "5 >v< O_O",
+      "group": "ParamGroup4",
+      "groupName": "按键-表情",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "PARAM_EXP6",
+      "name": "6 X X眼",
+      "group": "ParamGroup4",
+      "groupName": "按键-表情",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "PARAM_EXP7",
+      "name": "7 8嘴 流口水",
+      "group": "ParamGroup4",
+      "groupName": "按键-表情",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "PARAM_EXP8",
+      "name": "8 栗子嘴 o嘴",
+      "group": "ParamGroup4",
+      "groupName": "按键-表情",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "Paramcol_1",
+      "name": "1.尾巴消失",
+      "group": "ParamGroup",
+      "groupName": "按键-服装",
+      "range": [
+        0,
+        2
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "Paramcol_2",
+      "name": "2.耳朵消失",
+      "group": "ParamGroup",
+      "groupName": "按键-服装",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "Paramcol_3",
+      "name": "3.水印消除",
+      "group": "ParamGroup",
+      "groupName": "按键-服装",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamEyeSmile",
+      "name": "悲/喜",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamEyeAnger",
+      "name": "怒/惊",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamEyePuff",
+      "name": "EyePuff",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamEyeLOpen",
+      "name": "左眼　开关",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 1
+    },
+    {
+      "id": "ParamEyeROpen",
+      "name": "右眼　开关",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 1
+    },
+    {
+      "id": "ParamMouthX",
+      "name": "歪嘴",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamMouthForm",
+      "name": "嘴　变形",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamMouthOpenY",
+      "name": "嘴　开关",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamEyeBallX",
+      "name": "眼球 X",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "inverted": true,
+      "default": 0
+    },
+    {
+      "id": "ParamEyeBallY",
+      "name": "眼球 Y",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBrowLY",
+      "name": "左眉　上下",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBrowRY",
+      "name": "右眉　上下",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBrowLForm",
+      "name": "左眉　变形",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBrowRForm",
+      "name": "右眉　变形",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBrowLAngle",
+      "name": "左眉  角度",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBrowRAngle",
+      "name": "右眉  角度",
+      "group": "ParamGroup17",
+      "groupName": "五官组",
+      "range": [
+        -1,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamAngleX",
+      "name": "角度 X",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": [
+        -30,
+        30
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamAngleY",
+      "name": "角度 Y",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": [
+        -30,
+        30
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamAngleZ",
+      "name": "角度 Z",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": [
+        -30,
+        30
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBodyAngleX",
+      "name": "身体旋转　X",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": [
+        -30,
+        30
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBodyAngleY",
+      "name": "身体旋转　Y",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": [
+        -30,
+        30
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBodyAngleZ",
+      "name": "身体旋转　Z",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": [
+        -30,
+        30
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamBodyAngleZ1",
+      "name": "Z1",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamBodyAngleZ2",
+      "name": "z2",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamBodyAngleZ11",
+      "name": "Z1",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamBodyAngleZ22",
+      "name": "z2",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamBreath",
+      "name": "呼吸",
+      "group": "ParamGroup2",
+      "groupName": "九轴组",
+      "range": [
+        0,
+        1
+      ],
+      "rangeSource": "cubism-core",
+      "default": 0
+    },
+    {
+      "id": "ParamHF_01",
+      "name": "01 前发X1",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_02",
+      "name": "02 前发X2",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_03",
+      "name": "03 前发X3",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_04",
+      "name": "04 前发X4",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_05",
+      "name": "05 前发X5",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_06",
+      "name": "06 前发Y",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_07",
+      "name": "07 前发Y1",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_08",
+      "name": "08 前发Y2",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_09",
+      "name": "09 前左X1",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_10",
+      "name": "10 前左X2",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_11",
+      "name": "11 前左X3",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_12",
+      "name": "12 前左X4",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_13",
+      "name": "13 前左X5",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_14",
+      "name": "14 前左X6",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_15",
+      "name": "15 前侧Y1",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_16",
+      "name": "16 前侧Y2",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_17",
+      "name": "17 前右X1",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_18",
+      "name": "18 前右X2",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_19",
+      "name": "19 前右X3",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_20",
+      "name": "20 前右X4",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_21",
+      "name": "21 前右X5",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_22",
+      "name": "22 前右X6",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_23",
+      "name": "23 呆毛1",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_24",
+      "name": "24 呆毛2",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_25",
+      "name": "25 呆毛3",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_26",
+      "name": "26 呆毛4",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_27",
+      "name": "27 后发1",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_28",
+      "name": "28 后发2",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_29",
+      "name": "29 后发3",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_30",
+      "name": "30 后发4",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_31",
+      "name": "31 后发5",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_32",
+      "name": "32 后发6",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_33",
+      "name": "33 Y1",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_34",
+      "name": "34 Y2",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_35",
+      "name": "35 Y3",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_36",
+      "name": "36 蝴蝶结1",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_37",
+      "name": "37 蝴蝶结2",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_38",
+      "name": "38 蝴蝶结3",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamHF_39",
+      "name": "39 蝴蝶结4",
+      "group": "ParamGroup9",
+      "groupName": "头发WL",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL01",
+      "name": "01 眼眶L1",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL02",
+      "name": "02 眼眶L2",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL03",
+      "name": "03 眼眶L3",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL04",
+      "name": "04 瞳孔粗细",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL05",
+      "name": "05 瞳孔长短",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL06",
+      "name": "06 眼光粗细",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL07",
+      "name": "07 眼光长短",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL08",
+      "name": "08 眼光大小",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL09",
+      "name": "09 眼光滑动1",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL10",
+      "name": "10 眼光滑动2",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL11",
+      "name": "11 眼眶R1",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL12",
+      "name": "12 眼眶R2",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL13",
+      "name": "13 眼眶R3",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL14",
+      "name": "14 瞳孔粗细",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL15",
+      "name": "15 瞳孔长短",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL16",
+      "name": "16 眼光粗细",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL17",
+      "name": "17 眼光长短",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL18",
+      "name": "18 眼光大小",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL19",
+      "name": "19 眼光滑动1",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL20",
+      "name": "20 眼光滑动2",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL21",
+      "name": "21 L耳朵Z1",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL22",
+      "name": "22 L耳朵Z2",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL23",
+      "name": "23 L耳朵Z3",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL24",
+      "name": "24 L耳朵Z4",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL25",
+      "name": "25 L耳朵开合",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL26",
+      "name": "26 R耳朵Z1",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL27",
+      "name": "27 R耳朵Z2",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL28",
+      "name": "28 R耳朵Z3",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL29",
+      "name": "29 R耳朵Z4",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamTWL30",
+      "name": "30 R耳朵开合",
+      "group": "ParamGroup3",
+      "groupName": "头物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_1",
+      "name": "1.裙子X1",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_2",
+      "name": "2.裙子X2",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_3",
+      "name": "3.裙子X3",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_4",
+      "name": "4.裙子X4",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_5",
+      "name": "5.裙子X5",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_6",
+      "name": "6.裙子X6",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_7",
+      "name": "7.裙子Y1",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_8",
+      "name": "8.裙子Y2",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_9",
+      "name": "9.裙子Y3",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_10",
+      "name": "10.裙子Y4",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_11",
+      "name": "11.裙子蕾丝1",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_12",
+      "name": "12.裙子蕾丝2",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_13",
+      "name": "13.裙子蕾丝3",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_14",
+      "name": "14.裙子蕾丝4",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_15",
+      "name": "15.衣服蕾丝1",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_16",
+      "name": "16.衣服蕾丝2",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_17",
+      "name": "17.衣服蕾丝3",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_18",
+      "name": "18.衣服蕾丝4",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_19",
+      "name": "19.衣服蕾丝5",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_20",
+      "name": "20.衣服蕾丝6",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_21",
+      "name": "21.胸部X1",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_22",
+      "name": "22.胸部X2",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_23",
+      "name": "23.胸部Y1",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamYFWL_24",
+      "name": "24.胸部Y2",
+      "group": "ParamGroup10",
+      "groupName": "衣裙物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL01",
+      "name": "01 衣领蝴蝶结1",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL02",
+      "name": "02 衣领蝴蝶结2",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL03",
+      "name": "03 衣领蝴蝶结3",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL04",
+      "name": "04 衣领蝴蝶结4",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL05",
+      "name": "05 衣领蝴蝶结5",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL06",
+      "name": "06 衣领蝴蝶结6",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL07",
+      "name": "07 小蝴蝶结1",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL08",
+      "name": "08 小蝴蝶结2",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL09",
+      "name": "09 小蝴蝶结3",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL10",
+      "name": "10 小蝴蝶结4",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL11",
+      "name": "11 小蝴蝶结5",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL12",
+      "name": "12 小蝴蝶结6",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL13",
+      "name": "13 身后蝴蝶结1",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL14",
+      "name": "14 身后蝴蝶结2",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL15",
+      "name": "15 身后蝴蝶结3",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL16",
+      "name": "16 身后蝴蝶结4",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL17",
+      "name": "17 身后蝴蝶结5",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL18",
+      "name": "18 身后蝴蝶结6",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL19",
+      "name": "19 腿丝带1",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL20",
+      "name": "20 腿丝带2",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL21",
+      "name": "21 腿丝带3",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL22",
+      "name": "22 腿丝带4",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL23",
+      "name": "23 腿丝带5",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL24",
+      "name": "24 腿丝带6",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamParamGSFWL25",
+      "name": "25 大蝴蝶结1",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL26",
+      "name": "26 大蝴蝶结2",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL27",
+      "name": "27 大蝴蝶结3",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL28",
+      "name": "28 大蝴蝶结4",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL29",
+      "name": "29 大蝴蝶结5",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "ParamGSFWL30",
+      "name": "30 大蝴蝶结6",
+      "group": "ParamGroup8",
+      "groupName": "饰品物理",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_arm_L1",
+      "name": "左肩回转",
+      "group": "ParamGroup5",
+      "groupName": "手臂",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_arm_L2",
+      "name": "左肘回转",
+      "group": "ParamGroup5",
+      "groupName": "手臂",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_arm_L3",
+      "name": "左腕回转",
+      "group": "ParamGroup5",
+      "groupName": "手臂",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_arm_L4",
+      "name": "左手活动",
+      "group": "ParamGroup5",
+      "groupName": "手臂",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_arm_R1",
+      "name": "右肩回转",
+      "group": "ParamGroup5",
+      "groupName": "手臂",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_arm_R2",
+      "name": "右肘回转",
+      "group": "ParamGroup5",
+      "groupName": "手臂",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_arm_R3",
+      "name": "右腕回转",
+      "group": "ParamGroup5",
+      "groupName": "手臂",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_arm_R4",
+      "name": "右手活动",
+      "group": "ParamGroup5",
+      "groupName": "手臂",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_Angle_Rotation_2_ArtMesh367",
+      "name": "[1]尾巴",
+      "group": "ParamGroup11",
+      "groupName": "尾巴",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_Angle_Rotation_3_ArtMesh367",
+      "name": "[2]尾巴",
+      "group": "ParamGroup11",
+      "groupName": "尾巴",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_Angle_Rotation_4_ArtMesh367",
+      "name": "[3]尾巴",
+      "group": "ParamGroup11",
+      "groupName": "尾巴",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_Angle_Rotation_5_ArtMesh367",
+      "name": "[4]尾巴",
+      "group": "ParamGroup11",
+      "groupName": "尾巴",
+      "range": null,
+      "rangeSource": "unverified"
+    },
+    {
+      "id": "Param_Angle_Rotation_6_ArtMesh367",
+      "name": "[5]尾巴",
+      "group": "ParamGroup11",
+      "groupName": "尾巴",
+      "range": null,
+      "rangeSource": "unverified"
+    }
+  ],
+  "expressions": {
+    "01 口型切换.exp3": {
+      "file": "EXP/01 口型切换.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP1",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "02 3嘴.exp3": {
+      "file": "EXP/02 3嘴.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP2",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "02 龇牙.exp3": {
+      "file": "EXP/02 龇牙.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP2",
+          "Value": -1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "03 脸黑.exp3": {
+      "file": "EXP/03 脸黑.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP3",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "04 脸红.exp3": {
+      "file": "EXP/04 脸红.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP4",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "05 O O.exp3": {
+      "file": "EXP/05 O O.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP5",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "05 》《.exp3": {
+      "file": "EXP/05 》《.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP5",
+          "Value": -1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "06 X X.exp3": {
+      "file": "EXP/06 X X.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP6",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "07 流口水.exp3": {
+      "file": "EXP/07 流口水.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP7",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "08 O嘴.exp3": {
+      "file": "EXP/08 O嘴.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP8",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "08 担心嘴.exp3": {
+      "file": "EXP/08 担心嘴.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP7",
+          "Value": -1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "08 栗子嘴.exp3": {
+      "file": "EXP/08 栗子嘴.exp3.json",
+      "parameters": [
+        {
+          "Id": "PARAM_EXP8",
+          "Value": -1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "11 尾巴消失.exp3": {
+      "file": "EXP/11 尾巴消失.exp3.json",
+      "parameters": [
+        {
+          "Id": "Paramcol_1",
+          "Value": 2.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "12 耳朵消失.exp3": {
+      "file": "EXP/12 耳朵消失.exp3.json",
+      "parameters": [
+        {
+          "Id": "Paramcol_2",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    },
+    "13 水印消除.exp3": {
+      "file": "EXP/13 水印消除.exp3.json",
+      "parameters": [
+        {
+          "Id": "Paramcol_3",
+          "Value": 1.0,
+          "Blend": "Add"
+        }
+      ]
+    }
+  },
+  "drive": {
+    "head": {
+      "ParamAngleX": [
+        -30,
+        30
+      ],
+      "ParamAngleY": [
+        -30,
+        30
+      ],
+      "ParamAngleZ": [
+        -30,
+        30
+      ]
+    },
+    "body": {
+      "ParamBodyAngleX": [
+        -30,
+        30
+      ],
+      "ParamBodyAngleY": [
+        -30,
+        30
+      ],
+      "ParamBodyAngleZ": [
+        -30,
+        30
+      ]
+    },
+    "eyes": {
+      "ParamEyeLOpen": [
+        0,
+        1
+      ],
+      "ParamEyeROpen": [
+        0,
+        1
+      ],
+      "ParamEyeBallX": [
+        -1,
+        1
+      ],
+      "ParamEyeBallY": [
+        -1,
+        1
+      ]
+    },
+    "mouth": {
+      "ParamMouthOpenY": [
+        0,
+        1
+      ],
+      "ParamMouthForm": [
+        -1,
+        1
+      ],
+      "ParamMouthX": [
+        -1,
+        1
+      ]
+    },
+    "brows": {
+      "ParamBrowLY": [
+        -1,
+        1
+      ],
+      "ParamBrowRY": [
+        -1,
+        1
+      ],
+      "ParamBrowLForm": [
+        -1,
+        1
+      ],
+      "ParamBrowRForm": [
+        -1,
+        1
+      ]
+    },
+    "breath": {
+      "ParamBreath": [
+        0,
+        1
+      ]
+    },
+    "expressionToggles": {
+      "PARAM_EXP1": [
+        -1,
+        1
+      ],
+      "PARAM_EXP2": [
+        -1,
+        1
+      ],
+      "PARAM_EXP3": [
+        -1,
+        1
+      ],
+      "PARAM_EXP4": [
+        -1,
+        1
+      ],
+      "PARAM_EXP5": [
+        -1,
+        1
+      ],
+      "PARAM_EXP6": [
+        -1,
+        1
+      ],
+      "PARAM_EXP7": [
+        -1,
+        1
+      ],
+      "PARAM_EXP8": [
+        -1,
+        1
+      ]
+    }
+  },
+  "visibility": {
+    "tail": {
+      "id": "Paramcol_1",
+      "default": 0,
+      "hideValue": 2
+    },
+    "ears": {
+      "id": "Paramcol_2",
+      "default": 0,
+      "hideValue": 1
+    },
+    "watermark": {
+      "id": "Paramcol_3",
+      "hiddenValue": 1,
+      "note": "VTube 里 F10 水印消除表达式；启动时加 1 隐藏水印。"
+    }
+  },
+  "parts": [
+    {
+      "id": "Part46",
+      "name": "水印.png"
+    },
+    {
+      "id": "Part45",
+      "name": "水印2.png"
+    },
+    {
+      "id": "Part",
+      "name": "组 1"
+    },
+    {
+      "id": "PartSketch0",
+      "name": "[ 参考图 ]"
+    },
+    {
+      "id": "Part2",
+      "name": "眉毛"
+    },
+    {
+      "id": "Part9",
+      "name": "刘海"
+    },
+    {
+      "id": "Part10",
+      "name": "表情参考(可删除)"
+    },
+    {
+      "id": "Part44",
+      "name": "表情素材"
+    },
+    {
+      "id": "Part52",
+      "name": "五官"
+    },
+    {
+      "id": "Part59",
+      "name": "脸"
+    },
+    {
+      "id": "Part60",
+      "name": "耳"
+    },
+    {
+      "id": "Part63",
+      "name": "身体"
+    },
+    {
+      "id": "Part65",
+      "name": "裙子"
+    },
+    {
+      "id": "Part72",
+      "name": "手"
+    },
+    {
+      "id": "ArtMesh239_Skinning",
+      "name": "尾巴(蒙皮)"
+    },
+    {
+      "id": "Part75",
+      "name": "发"
+    },
+    {
+      "id": "Part3",
+      "name": "流口水"
+    },
+    {
+      "id": "Part4",
+      "name": "黑脸"
+    },
+    {
+      "id": "Part5",
+      "name": "o o"
+    },
+    {
+      "id": "Part6",
+      "name": "x  x     ＞  <"
+    },
+    {
+      "id": "Part7",
+      "name": "3"
+    },
+    {
+      "id": "Part8",
+      "name": "默认"
+    },
+    {
+      "id": "Part11",
+      "name": "流口水"
+    },
+    {
+      "id": "Part18",
+      "name": "黑脸"
+    },
+    {
+      "id": "Part26",
+      "name": "o o"
+    },
+    {
+      "id": "Part27",
+      "name": "＞  <"
+    },
+    {
+      "id": "Part28",
+      "name": "3"
+    },
+    {
+      "id": "Part33",
+      "name": "x  x"
+    },
+    {
+      "id": "Part38",
+      "name": "呲牙"
+    },
+    {
+      "id": "Part78",
+      "name": "左眼废"
+    },
+    {
+      "id": "Part53",
+      "name": "默认"
+    },
+    {
+      "id": "Part61",
+      "name": "组 2 副本"
+    },
+    {
+      "id": "Part62",
+      "name": "组 2"
+    },
+    {
+      "id": "Part64",
+      "name": "蝴蝶结"
+    },
+    {
+      "id": "Part66",
+      "name": "组 10 副本"
+    },
+    {
+      "id": "Part69",
+      "name": "组 10"
+    },
+    {
+      "id": "Part73",
+      "name": "组 6"
+    },
+    {
+      "id": "Part74",
+      "name": "组 3"
+    },
+    {
+      "id": "ArtMesh241_Skinning",
+      "name": "呆毛(蒙皮)"
+    },
+    {
+      "id": "Part12",
+      "name": "眼睛 副本 8"
+    },
+    {
+      "id": "Part14",
+      "name": "眼睛 副本 9"
+    },
+    {
+      "id": "Part16",
+      "name": "组 5"
+    },
+    {
+      "id": "Part17",
+      "name": "组 7"
+    },
+    {
+      "id": "Part19",
+      "name": "眼睛 副本 6"
+    },
+    {
+      "id": "Part21",
+      "name": "眼睛 副本 7"
+    },
+    {
+      "id": "Part23",
+      "name": "口 副本 3"
+    },
+    {
+      "id": "Part29",
+      "name": "眼睛 副本 2"
+    },
+    {
+      "id": "Part31",
+      "name": "眼睛 副本 3"
+    },
+    {
+      "id": "Part34",
+      "name": "组 4 副本"
+    },
+    {
+      "id": "Part35",
+      "name": "口 副本 2"
+    },
+    {
+      "id": "Part39",
+      "name": "眼睛 副本 4"
+    },
+    {
+      "id": "Part41",
+      "name": "眼睛 副本 5"
+    },
+    {
+      "id": "Part43",
+      "name": "组 4"
+    },
+    {
+      "id": "Part54",
+      "name": "眼睛 副本"
+    },
+    {
+      "id": "Part56",
+      "name": "眼睛"
+    },
+    {
+      "id": "Part58",
+      "name": "口"
+    },
+    {
+      "id": "Part67",
+      "name": "组 8 副本"
+    },
+    {
+      "id": "Part68",
+      "name": "组 9 副本"
+    },
+    {
+      "id": "Part70",
+      "name": "组 8"
+    },
+    {
+      "id": "Part71",
+      "name": "组 9"
+    },
+    {
+      "id": "Part13",
+      "name": "眼 副本 8"
+    },
+    {
+      "id": "Part15",
+      "name": "眼 副本 9"
+    },
+    {
+      "id": "Part20",
+      "name": "眼 副本 6"
+    },
+    {
+      "id": "Part22",
+      "name": "眼 副本 7"
+    },
+    {
+      "id": "Part24",
+      "name": "上 副本 3"
+    },
+    {
+      "id": "Part25",
+      "name": "下 副本 3"
+    },
+    {
+      "id": "Part30",
+      "name": "眼 副本 2"
+    },
+    {
+      "id": "Part32",
+      "name": "眼 副本 3"
+    },
+    {
+      "id": "Part36",
+      "name": "上 副本 2"
+    },
+    {
+      "id": "Part37",
+      "name": "下 副本 2"
+    },
+    {
+      "id": "Part40",
+      "name": "眼 副本 4"
+    },
+    {
+      "id": "Part42",
+      "name": "眼 副本 5"
+    },
+    {
+      "id": "Part55",
+      "name": "眼 副本"
+    },
+    {
+      "id": "Part57",
+      "name": "眼"
+    },
+    {
+      "id": "Part77",
+      "name": "嘴巴.psd"
+    },
+    {
+      "id": "Part76",
+      "name": "嘴巴"
+    }
+  ],
+  "notes": [
+    "0001.png 是带“免费模型”字样的预览图，不是模型贴图，未复制进模块资产。",
+    "背景图 live_bg_03.jpeg 已复制为 assets/whale_girl/scene_bg.jpg。",
+    "moc3 版本为 5，需要匹配的 Cubism Core；若只有 Cubism 4 Core，可能无法加载，必须先验证。"
+  ],
+  "cubismCore": {
+    "file": "public/live2dcubismcore.min.js",
+    "version": 83951616,
+    "versionText": "5.1.0",
+    "latestMocVersion": 5,
+    "note": "Cubism Core 5，已随 public 目录本地打包，不依赖 CDN。"
+  },
+  "remaining": {
+    "motions": "model3.json 没有 FileReferences.Motions，模型没有 motion3.json",
+    "expressionsInModel": "model3.json 没有 FileReferences.Expressions，EXP 文件需由模块自行解析或复制到 model3 引用",
+    "hitAreas": "model3.json 没有 HitAreas，P0 的 head/body/tail 需要自定义命中区或确认后补 HitAreas",
+    "eyeBlinkGroup": "EyeBlink.Ids 为空，眨眼必须完全由 BlinkController 驱动",
+    "lipSyncGroup": "LipSync.Ids 为空，口型必须手动驱动 ParamMouthOpenY"
+  },
+  "verified": {
+    "modelLoads": true,
+    "coreVersion": 83951616,
+    "latestMoc": 5,
+    "parameterCount": 174,
+    "drawableCount": 136,
+    "partCount": 35,
+    "watermarkHidden": true,
+    "watermarkValue": 1,
+    "textureRuntimeSize": [
+      4096,
+      4096
+    ]
+  },
+  "environment": {
+    "node": "24.22.1",
+    "npm": "11.19.1",
+    "pixi": "7.4.3",
+    "live2d": "pixi-live2d-display-mulmotion 0.5.0-mm-6",
+    "vite": "7.3.7",
+    "typescript": "5.9.3",
+    "devServer": "http://127.0.0.1:5173/",
+    "commands": [
+      "dev.cmd",
+      "build.cmd"
+    ]
+  }
+}

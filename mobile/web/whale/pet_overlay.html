@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>桌宠</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  @font-face { font-family: 'ShangshouSoftCandy';
+    src: url('/whale/fonts/ShangshouSoftCandy.ttf') format('truetype'); font-display: swap; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent;
+    font-family: 'ShangshouSoftCandy', 'Microsoft YaHei', sans-serif; }
+  /* 不再加阴影/底衬：素材 alpha 已重做，角色本身保持 100% 不透明 */
+  #petWrap { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 1;
+    transform-origin: 50% 100%; will-change: transform; opacity: 1; filter: none; }
+  #petWrap video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+    opacity: 0; transition: opacity .14s ease; pointer-events: none; background: transparent; }
+  #petWrap video.front { opacity: 1; }
+  #petBubble { position: absolute; left: 2%; width: 96%; background: rgba(255,255,255,.96); color: #1e4a63;
+    border-radius: 13px; padding: 7px 10px; font-size: 15px; line-height: 1.35; font-weight: 500;
+    box-shadow: 0 4px 14px rgba(20,60,90,.26); opacity: 0; transform: translateY(-6px) scale(.94);
+    transition: opacity .16s, transform .16s; pointer-events: none; z-index: 8; word-break: break-word;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+  #petBubble.show { opacity: 1; transform: translateY(0) scale(1); }
+  #petBubble::after { content: ''; position: absolute; left: 50%; bottom: -5px; margin-left: -5px;
+    border: 5px solid transparent; border-top-color: rgba(255,255,255,.96); border-bottom: none; }
+
+  /* ---------- 电脑版桌宠：透明窗口，不画卡片外框 ---------- */
+  html.desktop-pet body { background: transparent; border: none; }
+  html.desktop-pet[data-pet-theme="light"] body { background: transparent; border-color: transparent; }
+  html.desktop-pet #petWrap { top: 46px; height: calc(100% - 46px); }
+  html.desktop-pet #petBubble { top: 10px !important; left: 3%; width: 94%; font-size: 14px;
+    -webkit-line-clamp: 4; }
+  #petMenu { display: none; position: absolute; z-index: 20; width: 136px; padding: 6px;
+    border-radius: 12px; background: rgba(8,20,34,.96); border: 1px solid rgba(125,175,255,.25);
+    box-shadow: 0 10px 28px rgba(0,0,0,.44); }
+  #petMenu.on { display: block; }
+  #petMenu button { display: block; width: 100%; border: 0; background: transparent; color: #dbe9ff;
+    font-size: 13px; text-align: left; padding: 9px 10px; border-radius: 8px; cursor: pointer; }
+  #petMenu button:hover { background: rgba(125,175,255,.16); }
+</style>
+</head>
+<body>
+<div id="petWrap">
+  <video id="petA" muted playsinline preload="auto"></video>
+  <video id="petB" muted playsinline preload="auto"></video>
+</div>
+<div id="petBubble"></div>
+<div id="petMenu">
+  <button data-act="main">回主窗</button>
+  <button data-act="hide">隐藏桌宠</button>
+  <button data-act="settings">设置</button>
+  <button data-act="quit">退出</button>
+</div>
+<audio id="petSfx" preload="auto" src="/whale/pet/click-duck.wav"></audio>
+<script>
+(function () {
+  var A = document.getElementById('petA');
+  var B = document.getElementById('petB');
+  var wrap = document.getElementById('petWrap');
+  var bubbleEl = document.getElementById('petBubble');
+  var nativeBubble = false;
+  var IS_DESKTOP = /desktop=1/.test(location.search);
+  if (IS_DESKTOP) document.documentElement.classList.add('desktop-pet');
+  var sfx = document.getElementById('petSfx');
+  var BASE = '/whale/pet/webm/';
+
+  var POOL = {
+    idle: ['待机呼吸休闲'],
+    turn: ['东张西望'],
+    clicks: ['点击回应-开心跃动', '点击回应-害羞惊讶', '点击回应-傲娇生气', '点击回应-挠痒咯咯笑', '点击回应-元气挥手'],
+    moves: ['螃蟹走路', '原地漂浮踏步', '原地左转奔跑'],
+    whisper: ['碎碎念-擦桌碎碎念', '碎碎念-发呆碎碎念', '碎碎念-对屏碎碎念'],
+    small: ['悠闲哼歌', '超大伸懒腰', '原地敲击桌面互动', '原地重力下蹲压缩', '哈欠连天', '原地小憩沉眠',
+      '女仆屈膝礼仪', '被吓一跳', '小幅度原地360度旋转展示', '偷吃零食被抓住', '用鲸鱼尾巴拍打地面',
+      '打瞌睡被惊醒', '照镜子', '整体换装试色', '轻快记录', '写代码', '摇扇纳凉', '晨间刷牙'],
+    play: ['原地专心玩魔方', '原地蹲下玩玩具汽车', '鲸鱼吐泡泡特效', '原地跳跃抓碎头顶物品',
+      '玩游戏气急败坏', '玩水枪', '小提琴演奏', '蓝鲸现世', '优雅女仆舞', '轻快摇摆舞',
+      '可爱宅舞', '吹气球', '动物环绕', '放风筝', '拆礼物', '变鸽子', '扑克魔术',
+      '抽陀螺', '吹笛子', '蝴蝶蜜蜂环绕头顶开花', '撸猫', '凭空生花', '骑木马',
+      '三球抛接', '踢毽子', '下五子棋', '荡秋千'],
+    food: ['吃白饭', '大口吃零食', '吃Token', '吃早餐', '吃午餐', '吃晚餐', '吃冰淇淋融化',
+      '吃大闸蟹', '吃糖葫芦', '吃长寿面', '吃西瓜', '涮火锅'],
+    season: ['被落叶淹没', '中秋赏月吃月饼', '堆雪人', '放烟花', '吃粽子', '吃年糕', '吃青团',
+      '吃腊八粥', '吃重阳糕', '收红包', '写福字', '穿针乞巧', '舞狮头', '讨糖南瓜灯',
+      '插茱萸赏菊', '放河灯', '萌化小幽灵', '装点圣诞树', '放孔明灯', '吃汤圆', '吃饺子'],
+    text: ['是啊，吃什么', '深度思考碎碎念']
+  };
+
+  var P = {
+    front: 0, cur: '', curDur: 3, timer: 0, swap: 0, facing: 1,
+    w: 250, h: 141, sx: 1, sy: 1, squashTimer: 0, prefetchTimer: 0,
+    speaking: false, speakTimer: 0, bubbleTimer: 0,
+    valence: 0.2, arousal: 0.3, gravity: false
+  };
+
+  function url(name){ return BASE + encodeURIComponent(name) + '.webm'; }
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+  function apply(){
+    wrap.style.transform = 'translateZ(0) scaleX(' + P.facing + ') scale(' + P.sx + ',' + P.sy + ')';
+  }
+  function layout(){
+    P.w = innerWidth;
+    P.h = innerHeight;
+    apply();
+  }
+  function schedule(){
+    clearTimeout(P.timer);
+    var ms = Math.max(650, (P.curDur - 0.22) * 1000);
+    P.timer = setTimeout(function () { if (!P.speaking) next(); }, ms);
+  }
+  function play(name, force){
+    if (!name) return;
+    if (!force && name === P.cur) return;
+    var nextV = P.front === 0 ? B : A;
+    var curV = P.front === 0 ? A : B;
+    var token = ++P.swap;
+    clearTimeout(P.prefetchTimer);
+
+    function commit(){
+      if (token !== P.swap) return;
+      try { nextV.currentTime = 0; nextV.loop = false; nextV.play().catch(function () {}); } catch (e) {}
+      var settled = false;
+      function fire(){
+        if (settled || token !== P.swap) return;
+        settled = true;
+        nextV.classList.add('front');
+        curV.classList.remove('front');
+        P.front = 1 - P.front;
+        P.cur = name;
+        P.curDur = isFinite(nextV.duration) && nextV.duration > 0.2 ? nextV.duration : 3;
+        schedule();
+        scanHit();
+        setTimeout(function () {
+          if (token !== P.swap) return;
+          try { curV.pause(); } catch (e) {}
+          prefetch();
+        }, 340);
+      }
+      // 等新动画真正画出第一帧再交叉淡入，避免中间闪一帧空白
+      if (nextV.requestVideoFrameCallback) nextV.requestVideoFrameCallback(fire);
+      setTimeout(fire, 280);
+    }
+
+    if (nextV.dataset.anim === name && nextV.readyState >= 2) { commit(); return; }
+    nextV.dataset.anim = name;
+    if (nextV.dataset.src !== name) { nextV.dataset.src = name; nextV.src = url(name); }
+    var done = false;
+    function ready(){
+      if (done) return;
+      done = true;
+      nextV.removeEventListener('canplay', ready);
+      commit();
+    }
+    nextV.addEventListener('canplay', ready);
+    if (nextV.readyState >= 2) ready();
+    else { try { nextV.load(); } catch (e) {} }
+    setTimeout(ready, 1200);
+  }
+  function prefetch(){
+    clearTimeout(P.prefetchTimer);
+    P.prefetchTimer = setTimeout(function () {
+      if (P.speaking) return;
+      var hidden = P.front === 0 ? B : A;
+      var want = nextChoice().name;
+      if (!want || want === P.cur) return;
+      if (hidden.dataset.anim === want && hidden.readyState >= 2) return;
+      hidden.dataset.anim = want;
+      hidden.dataset.src = want;
+      try { hidden.src = url(want); hidden.load(); } catch (e) {}
+    }, 700);
+  }
+  function pickCategory(){
+    if (Math.random() * 80 < 20) return POOL.small[Math.floor(Math.random() * POOL.small.length)];
+    if (Math.random() * 80 < 40) return POOL.play[Math.floor(Math.random() * POOL.play.length)];
+    if (Math.random() * 80 < 56) return POOL.food[Math.floor(Math.random() * POOL.food.length)];
+    if (Math.random() * 80 < 70) return POOL.season[Math.floor(Math.random() * POOL.season.length)];
+    if (P.facing > 0) return POOL.text[Math.floor(Math.random() * POOL.text.length)];
+    return POOL.small[Math.floor(Math.random() * POOL.small.length)];
+  }
+  function pickSmallMood(){
+    if (P.arousal < 0.05 && Math.random() < 0.7) return Math.random() < 0.5 ? '哈欠连天' : '原地小憩沉眠';
+    if (P.valence > 0.35 && Math.random() < 0.5) return Math.random() < 0.5 ? '悠闲哼歌' : '超大伸懒腰';
+    return pickCategory();
+  }
+  function nextChoice(){
+    var r = Math.random() * 100;
+    if (r < 10) return { name: POOL.idle[0] };
+    r -= 10;
+    if (r < 5) return { name: POOL.turn[0], turn: true };
+    r -= 5;
+    if (r < 5) return { name: POOL.moves[Math.floor(Math.random() * POOL.moves.length)], move: true };
+    r -= 5;
+    return { name: pickSmallMood() };
+  }
+  function next(){
+    var c = nextChoice();
+    if (c.move) {
+      if (P.gravity) { play(c.name, true); return; }
+      walk(c.name);
+      return;
+    }
+    play(c.name, true);
+    if (c.turn) setTimeout(function () { P.facing *= -1; apply(); }, 2500);
+  }
+  // 窗口贴着角色，走动交给原生窗口平移，角色始终完整可见
+  function walk(anim){
+    var dir = Math.random() < 0.5 ? -1 : 1;
+    P.facing = dir > 0 ? 1 : -1;
+    apply();
+    play(anim, true);
+    if (window.PetNative && PetNative.moveBy) {
+      try { PetNative.moveBy(dir * Math.round(50 + Math.random() * 90)); } catch (e) {}
+    }
+  }
+  function clickAnim(){
+    if (P.valence > 0.35) return '点击回应-开心跃动';
+    if (P.valence < -0.12) return '点击回应-傲娇生气';
+    if (P.arousal > 0.45) return '点击回应-元气挥手';
+    return Math.random() < 0.5 ? '点击回应-害羞惊讶' : '点击回应-挠痒咯咯笑';
+  }
+  function replyAnim(){
+    if (P.valence > 0.45 && P.arousal > 0.35) return '点击回应-开心跃动';
+    if (P.valence < -0.25) return '点击回应-傲娇生气';
+    if (P.arousal > 0.5) return '点击回应-元气挥手';
+    return POOL.whisper[Math.floor(Math.random() * POOL.whisper.length)];
+  }
+  function speak(text){
+    if (nativeBubble) {
+      if (window.PetNative && PetNative.bubble) {
+        try { PetNative.bubble(String(text || '')); } catch (e) {}
+      }
+      return;
+    }
+    bubbleEl.textContent = text;
+    bubbleEl.style.top = '6px';
+    bubbleEl.classList.add('show');
+    clearTimeout(P.bubbleTimer);
+    P.bubbleTimer = setTimeout(function () { bubbleEl.classList.remove('show'); },
+      Math.min(9000, 3200 + String(text).length * 150));
+  }
+  /* 主动找话：头顶小气泡，不打断正在进行的桌宠对话 */
+  function petSay(text){
+    var t = String(text || '').trim();
+    if (!t || P.speaking) return;
+    if (nativeBubble) {
+      if (window.PetNative && PetNative.bubble) {
+        try { PetNative.bubble(t); } catch (e) {}
+      }
+      play(POOL.whisper[Math.floor(Math.random() * POOL.whisper.length)], true);
+      return;
+    }
+    bubbleEl.textContent = t;
+    bubbleEl.style.top = '6px';
+    bubbleEl.classList.add('show');
+    clearTimeout(P.bubbleTimer);
+    P.bubbleTimer = setTimeout(function () { bubbleEl.classList.remove('show'); },
+      Math.min(8000, 2600 + t.length * 140));
+    play(POOL.whisper[Math.floor(Math.random() * POOL.whisper.length)], true);
+  }
+  function squash(amount, ms){
+    P.sx = 1 + amount;
+    P.sy = 1 - amount;
+    apply();
+    clearTimeout(P.squashTimer);
+    P.squashTimer = setTimeout(function () { P.sx = 1; P.sy = 1; apply(); }, ms || 260);
+  }
+  function tap(){
+    clearTimeout(P.timer);
+    playSfx();
+    play(clickAnim(), true);
+    squash(0.1, 260);
+    var pool = P.valence > 0.35
+      ? ['嘿嘿，被你点到啦咕', '本鱼今天心情好，允许你再摸一下']
+      : P.valence < -0.1
+        ? ['干嘛戳我啦咕', '本鱼在生气，哄一下才行']
+        : ['咕？叫本鱼有事吗', '戳一下，尾巴会摇的哦', '本鱼在这里，不会走的'];
+    speak(pool[Math.floor(Math.random() * pool.length)]);
+  }
+  function playSfx(){
+    if (!sfx) return;
+    try {
+      sfx.volume = 0.55;
+      sfx.currentTime = 0;
+      var p = sfx.play();
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) {}
+  }
+
+  // 每帧算出角色真正不透明的那一块，交给原生缩命中框；透明的地方可以直接点穿
+  var hitCanvas = document.createElement('canvas');
+  hitCanvas.width = 160;
+  hitCanvas.height = 90;
+  var hitCtx = hitCanvas.getContext('2d', { willReadFrequently: true });
+  function scanHit(){
+    var v = P.front === 0 ? A : B;
+    if (!v || v.readyState < 2) return;
+    try {
+      hitCtx.clearRect(0, 0, 160, 90);
+      hitCtx.drawImage(v, 0, 0, 160, 90);
+    } catch (e) { return; }
+    var d;
+    try { d = hitCtx.getImageData(0, 0, 160, 90).data; } catch (e) { return; }
+    var L = 160, T = 90, R = -1, Bt = -1;
+    for (var y = 0; y < 90; y++) {
+      for (var x = 0; x < 160; x++) {
+        if (d[(y * 160 + x) * 4 + 3] > 40) {
+          if (x < L) L = x;
+          if (x > R) R = x;
+          if (y < T) T = y;
+          if (y > Bt) Bt = y;
+        }
+      }
+    }
+    if (R < L || Bt < T) return;
+    var l = L / 160, t = T / 90, w = (R - L + 1) / 160, h = (Bt - T + 1) / 90;
+    l = Math.max(0, l - 0.015);
+    t = Math.max(0, t - 0.015);
+    w = Math.min(1 - l, w + 0.03);
+    h = Math.min(1 - t, h + 0.03);
+    if (P.facing < 0) l = Math.max(0, 1 - l - w);
+    if (window.PetNative && PetNative.hitBox) {
+      try { PetNative.hitBox(l, t, w, h); } catch (e) {}
+    }
+  }
+  setInterval(scanHit, 420);
+
+  window.__petTap = function () { tap(); };
+  /* 原生重力模式：开着的时候不要自己走动，位置交给物理引擎 */
+  window.__petGravity = function (on) {
+    P.gravity = !!on;
+  };
+  window.__petReply = function (text, valence, arousal) {
+    P.valence = Number(valence);
+    P.arousal = Number(arousal);
+    if (!isFinite(P.valence)) P.valence = 0.2;
+    if (!isFinite(P.arousal)) P.arousal = 0.3;
+    P.speaking = true;
+    clearTimeout(P.timer);
+    play(replyAnim(), true);
+    speak(String(text || '').slice(0, 120));
+    clearTimeout(P.speakTimer);
+    P.speakTimer = setTimeout(function () { P.speaking = false; next(); },
+      Math.max(4200, String(text || '').length * 160));
+  };
+  window.__petPause = function () {
+    clearTimeout(P.timer);
+    try { A.pause(); B.pause(); } catch (e) {}
+  };
+  window.__petResume = function () {
+    try { (P.front === 0 ? A : B).play().catch(function () {}); } catch (e) {}
+    schedule();
+  };
+
+  /* 主动消息轮询：和系统通知同时进行，互不抢占 */
+  window.__petUseNativeBubble = function (on) {
+    nativeBubble = !!on;
+    if (nativeBubble) {
+      bubbleEl.classList.remove('show');
+    }
+  };
+
+  var proCursor = null;
+  function pollProactive(){
+    var since = proCursor == null ? 0 : proCursor;
+    fetch('/api/proactive?since=' + since, { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) return;
+        var items = d.items || [];
+        if (proCursor != null) {
+          items.forEach(function (it) { petSay(it.text); });
+        }
+        proCursor = Number(d.last || proCursor || 0);
+      })
+      .catch(function () {})
+      .then(function () { setTimeout(pollProactive, 18000); });
+  }
+  setTimeout(pollProactive, 3000);
+
+  layout();
+  play(POOL.idle[0], true);
+  window.addEventListener('resize', function () { layout(); });
+})();
+</script>
+<script>
+(function () {
+  if (!/desktop=1/.test(location.search)) return;
+  var menu = document.getElementById('petMenu');
+  if (!menu) return;
+
+  function api() { return window.pywebview && window.pywebview.api; }
+  function themeName() {
+    var m = location.search.match(/[?&]theme=([^&]+)/);
+    if (m) return decodeURIComponent(m[1]);
+    try { return localStorage.getItem('gf_theme') || 'sakura'; } catch (e) { return 'sakura'; }
+  }
+  function applyThemeName(t) {
+    var dark = ['black', 'whale', 'arknights', 'gold'].indexOf(t) >= 0;
+    document.documentElement.dataset.petTheme = dark ? 'dark' : 'light';
+  }
+  function theme() { applyThemeName(themeName()); }
+  theme();
+  window.addEventListener('storage', function (e) { if (e.key === 'gf_theme') theme(); });
+  /* 主窗换主题后，桌宠每隔一阵同步一次 */
+  setInterval(function () {
+    fetch('/api/desktop/theme', { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (d && d.theme) applyThemeName(d.theme); })
+      .catch(function () {});
+  }, 20000);
+
+  /* 拖动窗口：按屏幕坐标增量移动；移动不超过 4px 视为点击 */
+  var down = false, sx = 0, sy = 0, lx = 0, ly = 0, moved = false;
+  document.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0 || e.target.closest('#petMenu')) return;
+    down = true; moved = false;
+    sx = lx = e.screenX; sy = ly = e.screenY;
+  });
+  document.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    if (!moved && Math.abs(e.screenX - sx) + Math.abs(e.screenY - sy) < 4) return;
+    moved = true;
+    var a = api();
+    if (a && a.move_pet) { try { a.move_pet(e.screenX - lx, e.screenY - ly); } catch (err) {} }
+    lx = e.screenX; ly = e.screenY;
+  });
+  document.addEventListener('pointerup', function (e) {
+    if (!down) return;
+    down = false;
+    if (!moved) { try { window.__petTap && window.__petTap(); } catch (err) {} }
+  });
+
+  /* 右键菜单 */
+  document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+    var w = document.documentElement.clientWidth || 320;
+    var h = document.documentElement.clientHeight || 320;
+    menu.style.left = Math.max(4, Math.min(e.clientX, w - 148)) + 'px';
+    menu.style.top = Math.max(4, Math.min(e.clientY, h - 170)) + 'px';
+    menu.classList.add('on');
+  });
+  document.addEventListener('pointerdown', function (e) {
+    if (!e.target.closest('#petMenu')) menu.classList.remove('on');
+  }, true);
+  menu.addEventListener('click', function (e) {
+    var act = e.target && e.target.dataset && e.target.dataset.act;
+    if (!act) return;
+    menu.classList.remove('on');
+    var a = api();
+    if (!a) return;
+    if (act === 'main' && a.show_main) a.show_main();
+    if (act === 'hide' && a.hide_pet) a.hide_pet();
+    if (act === 'settings' && a.open_settings) a.open_settings();
+    if (act === 'quit' && a.quit_app) a.quit_app();
+  });
+})();
+</script>
+</body>
+</html>

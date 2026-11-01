@@ -1,0 +1,1451 @@
+/* ============================================================================
+ * dsh-startup-screen — 启动界面 / 启动动画样式
+ * ----------------------------------------------------------------------------
+ * 风格取自参考片（Hypergryph 式开机序列）：黑色序幕 → 灰白过曝洗白 → 暖白
+ * "技术档案" 底板 → 等宽字距状态行 → 环形准星扫描 → WELCOME 版式 → 色散故障。
+ *
+ * 全部字体都取系统自带字体，零网络依赖：
+ *   --dsu-din   Bahnschrift（Windows 10+ 自带 DIN 1451 风格，对应参考片里
+ *               "RHINE LAB / SYNTHESIZE INFORMATION" 那种窄体技术字）
+ *   --dsu-mono  Cascadia Mono / Consolas（对应参考片里的等宽字距小字）
+ *   --dsu-zh    微软雅黑（对应参考片底部中文小字幕）
+ * ========================================================================== */
+
+/* Desktop 的原生标题栏探针在 body 下；启动期间让按钮底色透明，透出背景图。
+   同时覆盖客户端自举和重播，解除 dsu-lock 后恢复宿主主题 token。 */
+/* 启动期间把窗口按钮底色置透明。不依赖 data-windows-titlebar：
+   探针可能在属性写入前就读过一次，那时规则不匹配，按钮会先画成不透明。 */
+html.dsu-lock body,
+html[data-windows-titlebar].dsu-lock body {
+  --dsw-specific-sidebar-fill: transparent !important;
+  --dsw-alias-label-primary: #fff !important;
+}
+
+#dsh-startup-root,
+#dsh-startup-root *,
+#dsh-startup-root *::before,
+#dsh-startup-root *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#dsh-startup-root {
+  /* —— 配色（浅色 / 参考片色板）—— */
+  --dsu-bg: #e5e3df;
+  --dsu-bg-2: #eceae6;
+  --dsu-ink: #0a0a0a;
+  --dsu-ink-soft: #3a3936;
+  --dsu-muted: #7a7873;
+  --dsu-hair: rgba(10, 10, 10, 0.16);
+  --dsu-hair-soft: rgba(10, 10, 10, 0.07);
+  --dsu-accent: #ff7500;
+  --dsu-glitch-a: #ff3b30;
+  --dsu-glitch-b: #2971b8;
+  --dsu-box-bg: #0a0a0a;
+  --dsu-box-ink: #ffffff;
+  /* 五星红旗星徽黄（GB 12982 标准色），用于终幕「黑框」文字 */
+  --dsu-gold: #ffde00;
+  --dsu-sub-glow: 0 0 6px rgba(255, 255, 255, 0.9);
+
+  /* 字体全部取系统自带，不下发 webfont（启动零抖动）。
+     三档回退链覆盖 Win / macOS / Linux：
+       DIN 风格窄体重黑：Bahnschrift(Win) → DIN Alternate(macOS) → Ubuntu/Roboto Condensed(Linux)
+       等宽：Cascadia Mono(Win) → SFMono/Consolas → DejaVu Sans Mono(Linux)
+       中文：微软雅黑(Win) → 苹方(macOS) → 思源/Noto/WQY(Linux)
+     完全没有时退到通用 sans-serif —— 版式不变，只是字面观感略有差异。 */
+  --dsu-din: "Bahnschrift", "DIN Alternate", "DIN Condensed", "Archivo", "Oswald",
+    "Arial Narrow", "Liberation Sans Narrow", "Ubuntu Condensed", "Roboto Condensed",
+    "Noto Sans Display", "HarmonyOS Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --dsu-mono: "Cascadia Mono", "SFMono-Regular", "Consolas", "Menlo", "DejaVu Sans Mono",
+    "Liberation Mono", "Noto Sans Mono", ui-monospace, monospace;
+  --dsu-zh: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "HarmonyOS Sans SC",
+    "Source Han Sans SC", "Noto Sans CJK SC", "Noto Sans SC", "WenQuanYi Micro Hei",
+    sans-serif;
+
+  --dsu-speed: 1;
+
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  /* 根层必须完全实底，杜绝任何透明缝透出宿主主界面背景。
+     宿主皮肤可能被其它插件改成象牙白/浅色，若根层有透明或半透明缝隙，
+     动画边缘就会漏出主界面底色。这里强制纯黑实底，两种主题下都不透底。 */
+  background: #000;
+  background-clip: padding-box;
+  color: var(--dsu-ink);
+  font-family: var(--dsu-din);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+  contain: layout paint style;
+}
+
+/* 逐字渐显（typeIn）：用不透明度而非截断，居中排版不会左右抖动 */
+.dsu-status .dsu-ch,
+.dsu-sub-en .dsu-ch {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.16em);
+  transition: opacity 340ms ease, transform 340ms ease;
+}
+.dsu-sub-en .dsu-ch { transform: translateY(0.1em); transition-duration: 300ms; }
+.dsu-status.dsu-in .dsu-ch,
+.dsu-sub-en.dsu-in .dsu-ch { opacity: 1; transform: none; }
+
+/* 中央标识与终幕标识：金黄镰刀锤头，固定金色不随主题变化 */
+.dsu-logo svg,
+.dsu-w3 svg { fill: #fdd000; }
+.dsu-logo img,
+.dsu-w3 img { display: block; }
+
+/* 深色主题：同一套版式，换成暗底板 */
+#dsh-startup-root.dsu-dark {
+  --dsu-bg: #0b0b0c;
+  --dsu-bg-2: #131315;
+  --dsu-ink: #f2f1ee;
+  --dsu-ink-soft: #cfcecb;
+  --dsu-muted: #85847f;
+  --dsu-hair: rgba(255, 255, 255, 0.18);
+  --dsu-hair-soft: rgba(255, 255, 255, 0.07);
+  --dsu-box-bg: #f2f1ee;
+  --dsu-box-ink: #0b0b0c;
+  /* 五星红旗星徽黄：深色主题下用同一支国标黄，保证终幕观感一致 */
+  --dsu-gold: #ffde00;
+  --dsu-sub-glow: 0 0 6px rgba(0, 0, 0, 0.9);
+  background: #000;
+}
+
+/* 浅色（暖白）主题：底板实底铺满，杜绝透出宿主浅色主界面 */
+#dsh-startup-root.dsu-light {
+  background: #e5e3df;
+}
+
+/* 首屏兜底：脚本还没跑起来时也要先糊住整个窗口，避免闪出应用本体 */
+#dsh-startup-root.dsu-boot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 90;
+}
+
+/* 退场：必须写在 dsu-handoff 之后才生效；用 .dsu-handoff.dsu-gone 提高优先级，
+   否则会被上面 780ms 的 opacity 过渡覆盖（实测退场拖到近 2 秒）。
+   620ms → 380ms，动画结束/按 Enter 之后不再留一段纯黑。 */
+#dsh-startup-root.dsu-gone,
+#dsh-startup-root.dsu-handoff.dsu-gone {
+  opacity: 0 !important;
+  pointer-events: none;
+  /* 淡出期间不再占层：避免 2147483000 的整屏层在透明后仍压住主界面，
+     导致「动画结束了还黑一下」（2026-10-19） */
+  z-index: -1 !important;
+  transition: opacity 380ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ── 底板 ───────────────────────────────────────────────────────────────── */
+.dsu-plate {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 78% 12%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 55%),
+    linear-gradient(168deg, var(--dsu-bg-2) 0%, var(--dsu-bg) 42%, var(--dsu-bg) 100%);
+  opacity: 0;
+}
+
+.dsu-dark .dsu-plate {
+  background:
+    radial-gradient(120% 90% at 78% 12%, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 55%),
+    linear-gradient(168deg, var(--dsu-bg-2) 0%, var(--dsu-bg) 42%, var(--dsu-bg) 100%);
+}
+
+/* 背景里若隐若现的档案面板（参考片右侧极淡的方块群） */
+.dsu-watermark {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.dsu-wm {
+  position: absolute;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  border: 1px solid var(--dsu-hair-soft);
+}
+.dsu-dark .dsu-wm {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0));
+}
+
+/* 细颗粒噪点，让大色块不"塑料" */
+.dsu-grain {
+  position: absolute;
+  inset: -50%;
+  opacity: 0.05;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='0.6'/></svg>");
+}
+
+/* ── 第一幕：黑幕 + DeepSeek 标识 ─────────────────────────────────────── */
+.dsu-black {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  display: grid;
+  place-items: center;
+  z-index: 40;
+  opacity: 1;
+}
+.dsu-black-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 560ms ease, transform 560ms ease;
+}
+.dsu-black-inner.dsu-in {
+  opacity: 1;
+  transform: none;
+}
+.dsu-black-inner.dsu-out {
+  opacity: 0;
+  transform: scale(1.045);
+  transition: opacity 620ms ease, transform 620ms ease;
+}
+.dsu-whale {
+  display: block;
+  fill: #fdd000;
+}
+.dsu-black .dsu-whale {
+  /* 用高度定尺寸、宽度自适应：正方形徽章不受影响，
+     矩形图案（如 512×439 的「东亚防御倡议」）也能保持原始比例不被拉长。
+     max-width 兜住超宽图案，避免横向溢出。 */
+  height: 122px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+  color: #fff;
+  margin-bottom: 18px;
+}
+.dsu-black-zh {
+  font-family: var(--dsu-zh);
+  font-size: 33px;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  color: #fff;
+}
+.dsu-black-en {
+  margin-top: 9px;
+  font-family: var(--dsu-din);
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: 0.62em;
+  text-indent: 0.62em;
+  color: #fff;
+  transition: letter-spacing 1300ms cubic-bezier(0.16, 0.84, 0.24, 1);
+}
+.dsu-black-en.dsu-tighten {
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+}
+.dsu-black-sub {
+  margin-top: 12px;
+  font-family: var(--dsu-mono);
+  font-size: 10px;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  color: rgba(255, 255, 255, 0.5);
+}
+/* 扫光：一条极淡的白色横条掠过标识 */
+.dsu-sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 42%;
+  left: -50%;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.055) 42%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.055) 58%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+.dsu-sweep.dsu-go {
+  animation: dsu-sweep 1150ms cubic-bezier(0.32, 0, 0.2, 1) forwards;
+}
+@keyframes dsu-sweep {
+  from { left: -50%; }
+  to { left: 118%; }
+}
+
+/* 过曝洗白：黑 → 灰 → 白 → 底板 */
+.dsu-wash {
+  position: absolute;
+  inset: 0;
+  background: #8b8a88;
+  opacity: 0;
+  z-index: 35;
+  pointer-events: none;
+}
+.dsu-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* ── 品牌块（左上角）──────────────────────────────────────────────────── */
+/* 黑幕结束后统一"滑到位"：左侧文字从 -22px 滑入，右侧元素从 +18px 滑入，
+   按 60ms 一档错开；不再用裁剪式擦除 */
+.dsu-brand {
+  position: absolute;
+  left: 46px;
+  top: 44px;
+  z-index: 20;
+  color: var(--dsu-ink);
+}
+.dsu-brand-1,
+.dsu-brand-2,
+.dsu-brand-3 {
+  opacity: 0;
+  transform: translateX(-22px);
+  transition: opacity 560ms cubic-bezier(0.16, 0.84, 0.24, 1),
+    transform 560ms cubic-bezier(0.16, 0.84, 0.24, 1);
+}
+.dsu-brand-1 {
+  font-size: 33px;
+  font-weight: 700;
+  letter-spacing: 0.012em;
+  line-height: 0.98;
+}
+.dsu-brand-2 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.012em;
+  margin-top: 3px;
+}
+.dsu-brand-3 {
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: 0.012em;
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+.dsu-brand-3 b { font-weight: 700; }
+.dsu-brand.dsu-in .dsu-brand-1 { opacity: 1; transform: none; transition-delay: 60ms; }
+.dsu-brand.dsu-in .dsu-brand-2 { opacity: 1; transform: none; transition-delay: 150ms; }
+.dsu-brand.dsu-in .dsu-brand-3 { opacity: 1; transform: none; transition-delay: 240ms; }
+
+/* 中央状态区 */
+.dsu-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 47%;
+  transform: translateY(-50%);
+  z-index: 22;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  pointer-events: none;
+  transition: opacity 340ms ease;
+}
+/* 终幕时整块中央区（状态行 / 分隔线 / 鲸鱼 / 虚线）必须整体退场，
+   否则会和 WELCOME 版式叠在一起 */
+.dsu-center.dsu-off { opacity: 0; }
+
+.dsu-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--dsu-din);
+  font-size: 44px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--dsu-ink);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  white-space: nowrap;
+}
+.dsu-status.dsu-in { opacity: 1; }
+.dsu-status.dsu-zhline {
+  font-family: var(--dsu-zh);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  font-size: 40px;
+}
+.dsu-caret {
+  display: inline-block;
+  width: 15px;
+  height: 4px;
+  background: var(--dsu-accent);
+  transform: translateY(3px);
+  opacity: 0;
+}
+.dsu-caret.dsu-on {
+  opacity: 1;
+  animation: dsu-blink 1s steps(1, end) infinite;
+}
+@keyframes dsu-blink { 50% { opacity: 0; } }
+
+.dsu-sub-en {
+  margin-top: 14px;
+  font-family: var(--dsu-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.44em;
+  text-indent: 0.44em;
+  color: var(--dsu-ink-soft);
+  opacity: 0;
+  white-space: nowrap;
+}
+.dsu-sub-en.dsu-in { opacity: 1; }
+
+.dsu-rule {
+  margin-top: 22px;
+  height: 1px;
+  width: 0;
+  background: var(--dsu-hair);
+  transition: width 620ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.dsu-rule.dsu-in { width: min(560px, 42vw); }
+
+/* 中央标识（鲸鱼）装配区 */
+.dsu-logo {
+  margin-top: 26px;
+  height: 0;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 420ms ease, height 420ms ease, margin-top 420ms ease;
+}
+.dsu-logo.dsu-in {
+  opacity: 1;
+  height: 118px;
+}
+.dsu-logo svg,
+.dsu-logo img {
+  /* 高度固定、宽度自适应，保持图案原始宽高比（矩形图案不被压扁/拉长） */
+  height: 84px;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
+  color: var(--dsu-ink);
+}
+.dsu-logolabel {
+  margin-top: 10px;
+  font-family: var(--dsu-mono);
+  font-size: 10px;
+  letter-spacing: 0.58em;
+  text-indent: 0.58em;
+  color: var(--dsu-ink-soft);
+}
+.dsu-dots {
+  margin-top: 9px;
+  height: 2px;
+  width: 96px;
+  background-image: radial-gradient(circle, var(--dsu-ink) 40%, transparent 42%);
+  background-size: 12px 2px;
+  background-repeat: repeat-x;
+  opacity: 0.5;
+}
+
+/* 右侧等宽信息行（对应参考片 "· ID CONFIRMED : JOYC"）
+   原定位在屏幕中右（left:calc(50%+190px); top:49%），会与准星/状态字重叠。
+   改为对齐页脚「Powered By LONG MARCH」正下方，右对齐，避免与中间内容打架。 */
+.dsu-idline {
+  position: absolute;
+  right: 46px;
+  bottom: 24px;
+  transform: translateY(16px);
+  z-index: 24;
+  font-family: var(--dsu-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--dsu-ink-soft);
+  opacity: 0;
+  transition: opacity 520ms ease, transform 520ms cubic-bezier(0.16, 0.84, 0.24, 1);
+  transition-delay: 520ms;
+  white-space: nowrap;
+}
+.dsu-idline.dsu-in { opacity: 1; transform: translateY(0); }
+
+/* ── 环形准星（验证通过）───────────────────────────────────────────────── */
+/* 照原片：环居中、直径约 56vw，状态字就落在环心里，两者是一个整体。
+   关键是把两段弧的缺口都留在正下方 6 点钟方向，底部字幕永远不会被压到。 */
+.dsu-reticle {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: min(56vw, 86vh, 1040px);
+  height: min(56vw, 86vh, 1040px);
+  transform: translate(-50%, -50%);
+  z-index: 16;
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+}
+.dsu-reticle.dsu-in { opacity: 1; }
+.dsu-reticle svg { width: 100%; height: 100%; overflow: visible; }
+.dsu-ret-rot-a { transform-origin: 50% 50%; animation: dsu-spin 9s linear infinite; }
+.dsu-ret-rot-b { transform-origin: 50% 50%; animation: dsu-spin 5.4s linear infinite reverse; }
+@keyframes dsu-spin { to { transform: rotate(360deg); } }
+.dsu-reticle .dsu-ring-a { fill: none; stroke: var(--dsu-ink); stroke-width: 6; }
+.dsu-reticle .dsu-ring-b { fill: none; stroke: var(--dsu-box-ink); stroke-width: 2.2; opacity: 0.95; }
+.dsu-reticle .dsu-dot-a { fill: var(--dsu-ink); }
+.dsu-reticle .dsu-dot-b { fill: var(--dsu-box-ink); }
+.dsu-reticle .dsu-dot-o { fill: var(--dsu-accent); }
+.dsu-reticle .dsu-bracket {
+  fill: none;
+  stroke: var(--dsu-ink);
+  stroke-width: 1.6;
+  opacity: 0.85;
+}
+
+/* 读取阶段的十六进制瀑布：放到原片里最空的上右区，不去和主体挤中间 */
+.dsu-hex {
+  position: absolute;
+  right: 46px;
+  top: 22%;
+  width: 236px;
+  height: 148px;
+  overflow: hidden;
+  z-index: 19;
+  font-family: var(--dsu-mono);
+  font-size: 10px;
+  line-height: 1.55;
+  letter-spacing: 0.06em;
+  color: var(--dsu-ink-soft);
+  opacity: 0;
+  transition: opacity 320ms ease;
+  text-align: right;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 22%, #000 74%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 22%, #000 74%, transparent);
+}
+.dsu-hex.dsu-in { opacity: 0.6; }
+
+/* ── 交互区 ─────────────────────────────────────────────────────────────── */
+.dsu-action {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 60%;
+  z-index: 26;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms ease;
+}
+.dsu-action.dsu-in {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* 自动播放档只隐藏按钮与按键提示，身份资料卡仍要显示。
+   .dsu-btn 自带 display:inline-flex，会盖掉 [hidden] 的 UA display:none，必须显式补一条。 */
+.dsu-btn[hidden],
+.dsu-hint[hidden] { display: none !important; }
+.dsu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 26px;
+  border: 1.5px solid var(--dsu-ink);
+  background: transparent;
+  color: var(--dsu-ink);
+  font-family: var(--dsu-din);
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color 220ms ease, border-color 220ms ease;
+}
+.dsu-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--dsu-ink);
+  transform: translateX(-101%);
+  transition: transform 300ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.dsu-btn:hover::before { transform: none; }
+.dsu-btn:hover { color: var(--dsu-box-ink); }
+.dsu-btn:hover .dsu-btn-en { color: var(--dsu-box-ink); opacity: 1; }
+.dsu-btn > * { position: relative; z-index: 1; }
+.dsu-btn:active { transform: translateY(1px); }
+.dsu-btn-zh { font-family: var(--dsu-zh); font-weight: 500; }
+.dsu-btn-en { font-family: var(--dsu-mono); font-size: 11px; letter-spacing: 0.24em; opacity: 0.62; }
+.dsu-btn.dsu-pulse { animation: dsu-pulse 1.9s ease-in-out infinite; }
+@keyframes dsu-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 117, 0, 0); }
+  50% { box-shadow: 0 0 0 7px rgba(255, 117, 0, 0.14); }
+}
+.dsu-hint {
+  font-family: var(--dsu-zh);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--dsu-muted);
+}
+.dsu-hint kbd {
+  font-family: var(--dsu-mono);
+  border: 1px solid var(--dsu-hair);
+  padding: 1px 5px;
+  margin: 0 3px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+/* 身份卡（第二步）：纯中文标签 + 数字，去掉了英文双写与竖排表头，尽量干净 */
+.dsu-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 300px;
+  padding: 2px 0;
+  border-top: 1px solid var(--dsu-hair);
+  border-bottom: 1px solid var(--dsu-hair);
+}
+/* 作者样式里的 display:flex 会盖掉 [hidden] 的 UA display:none，必须显式补一条，
+   否则第一步（只要按钮、不要卡片）会露出一条空的边框 */
+.dsu-card[hidden] { display: none; }
+.dsu-card-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 8px 2px;
+  font-family: var(--dsu-zh);
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  color: var(--dsu-muted);
+}
+.dsu-card-row + .dsu-card-row {
+  border-top: 1px solid var(--dsu-hair-soft);
+}
+.dsu-card-row > span {
+  flex: none;
+}
+.dsu-card-row > b {
+  text-align: left;
+  font-family: var(--dsu-din);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: var(--dsu-ink);
+}
+.dsu-card-row b.dsu-zhname { font-family: var(--dsu-zh); letter-spacing: 0.1em; }
+
+/* ── 第二步访问密码输入 ─────────────────────────────────────────────────── */
+.dsu-pwd-row { align-items: center; justify-content: space-between; }
+.dsu-pwd-input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--dsu-hair);
+  font-family: var(--dsu-din);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  color: var(--dsu-ink);
+  caret-color: var(--dsu-accent, #ff7500);
+  outline: none;
+}
+.dsu-pwd-input::placeholder {
+  font-family: var(--dsu-zh);
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--dsu-hair);
+}
+.dsu-pwd-input:focus { border-bottom-color: var(--dsu-accent, #ff7500); }
+.dsu-pwd-error {
+  margin-top: 6px;
+  padding: 2px 2px 0;
+  font-family: var(--dsu-zh);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: #ff3b30;
+  min-height: 1em;
+}
+.dsu-pwd-shake { animation: dsu-shake 0.32s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes dsu-shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+
+/* ── 终幕：WELCOME ─────────────────────────────────────────────────────── */
+.dsu-welcome {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 45%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms ease;
+}
+.dsu-welcome.dsu-in { opacity: 1; }
+.dsu-w1 {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  color: var(--dsu-ink);
+}
+.dsu-w2 {
+  margin-top: 12px;
+  /* 终幕黑框 → 透明底 + 国旗金（星徽黄 #FFDE00），底色不再参与构图 */
+  background: transparent;
+  color: var(--dsu-gold);
+  padding: 7px 16px 8px;
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-indent: 0.12em;
+  text-shadow: 0 0 18px rgba(255, 222, 0, 0.35);
+}
+.dsu-w3 {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.dsu-w3 svg, .dsu-w3 img {
+  /* 高度固定、宽度自适应，保持图案原始宽高比 */
+  height: 76px;
+  width: auto;
+  max-width: 150px;
+  object-fit: contain;
+  color: var(--dsu-ink);
+}
+.dsu-w3 span {
+  font-family: var(--dsu-mono);
+  font-size: 10px;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  color: var(--dsu-ink-soft);
+}
+.dsu-w4 {
+  margin-top: 20px;
+  font-family: var(--dsu-zh);
+  font-size: 15px;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  color: var(--dsu-ink);
+}
+
+/* 色散故障（参考片结尾的青蓝色偏）
+   做法：复制层带 0.5px 模糊 + 分片 clip-path 位移 + 混合模式，
+   读起来像镜头色散而不是"三个字叠一起"。常态必须 opacity:0，
+   否则动画跑完红蓝副本会一直压在文字上。 */
+.dsu-glitch { position: relative; }
+.dsu-glitch[data-text]::before,
+.dsu-glitch[data-text]::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(0.5px);
+  mix-blend-mode: multiply;      /* 浅底深字：做减色边缘 */
+  clip-path: inset(0 0 100% 0);
+}
+.dsu-glitch[data-text]::before { color: var(--dsu-glitch-a); }
+.dsu-glitch[data-text]::after { color: var(--dsu-glitch-b); }
+/* 透明底 + 金字那块：改成同一支金的两侧色散（偏橙 / 偏绿），
+   用加色混合在透明底上叠出「金边抖动」；若还沿用红/蓝，会把金色洗成脏白。 */
+.dsu-glitch.dsu-glitch-box::before,
+.dsu-glitch.dsu-glitch-box::after { mix-blend-mode: screen; }
+.dsu-glitch.dsu-glitch-box::before { color: #ffb400; }
+.dsu-glitch.dsu-glitch-box::after  { color: #fff59a; }
+
+.dsu-glitch.dsu-on::before { animation: dsu-gx 430ms steps(3, end) 2 both; }
+.dsu-glitch.dsu-on::after { animation: dsu-gy 430ms steps(3, end) 2 both; }
+@keyframes dsu-gx {
+  0% { transform: translate(0, 0); opacity: 0; clip-path: inset(0 0 100% 0); }
+  14% { transform: translate(-3px, 0); opacity: 0.7; clip-path: inset(6% 0 68% 0); }
+  34% { transform: translate(2px, 0); opacity: 0.5; clip-path: inset(54% 0 28% 0); }
+  56% { transform: translate(-2px, 0); opacity: 0.6; clip-path: inset(22% 0 56% 0); }
+  80% { transform: translate(1px, 0); opacity: 0.32; clip-path: inset(72% 0 10% 0); }
+  100% { transform: none; opacity: 0; clip-path: inset(0 0 100% 0); }
+}
+@keyframes dsu-gy {
+  0% { transform: translate(0, 0); opacity: 0; clip-path: inset(0 0 100% 0); }
+  14% { transform: translate(3px, 0); opacity: 0.7; clip-path: inset(62% 0 14% 0); }
+  34% { transform: translate(-2px, 0); opacity: 0.5; clip-path: inset(10% 0 66% 0); }
+  56% { transform: translate(2px, 0); opacity: 0.6; clip-path: inset(48% 0 34% 0); }
+  80% { transform: translate(-1px, 0); opacity: 0.32; clip-path: inset(30% 0 52% 0); }
+  100% { transform: none; opacity: 0; clip-path: inset(0 0 100% 0); }
+}
+
+/* ── 收尾：径向光晕 + 变形宽银幕光条 + 暗角 + 机位后撤 ─────────────────── */
+/* 暗角：给暖白底板一点纵深，别让大色块太平 */
+.dsu-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 13;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 900ms ease;
+  background:
+    radial-gradient(122% 104% at 50% 42%, rgba(0, 0, 0, 0) 52%, rgba(0, 0, 0, 0.055) 100%),
+    radial-gradient(60% 40% at 50% 45%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 100%);
+}
+.dsu-dark .dsu-vignette {
+  background:
+    radial-gradient(122% 104% at 50% 42%, rgba(0, 0, 0, 0) 48%, rgba(0, 0, 0, 0.42) 100%),
+    radial-gradient(60% 40% at 50% 45%, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 100%);
+}
+.dsu-vignette.dsu-in { opacity: 1; }
+
+/* 径向光晕：不是整屏糊白，而是从中心炸开一朵光，边缘仍留暖色 */
+.dsu-bloom {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 128vmax;
+  height: 128vmax;
+  margin: -64vmax 0 0 -64vmax;
+  border-radius: 50%;
+  z-index: 62;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.99) 0%,
+    rgba(255, 255, 255, 0.94) 22%,
+    rgba(255, 255, 255, 0.58) 44%,
+    rgba(255, 255, 255, 0.16) 62%,
+    rgba(255, 255, 255, 0) 78%
+  );
+}
+.dsu-bloom.dsu-go { animation: dsu-bloom 1250ms cubic-bezier(0.22, 0.68, 0.2, 1) forwards; }
+@keyframes dsu-bloom {
+  0% { opacity: 0; transform: scale(0.08); }
+  20% { opacity: 1; transform: scale(0.42); }
+  58% { opacity: 0.96; transform: scale(0.96); }
+  100% { opacity: 0; transform: scale(1.42); }
+}
+
+/* 变形宽银幕光条：横着抽出来的一条细光，光晕最亮那一刻扫过 */
+.dsu-streak {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  height: 3px;
+  width: 0;
+  z-index: 63;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  filter: blur(1px);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 34%,
+    rgba(255, 255, 255, 0.98) 50%,
+    rgba(255, 255, 255, 0.5) 66%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+.dsu-streak.dsu-go { animation: dsu-streak 1000ms cubic-bezier(0.2, 0.78, 0.2, 1) forwards; }
+@keyframes dsu-streak {
+  0% { opacity: 0; width: 0; height: 1px; }
+  26% { opacity: 1; width: 62vw; height: 3px; }
+  60% { opacity: 0.6; width: 96vw; height: 2px; }
+  100% { opacity: 0; width: 132vw; height: 1px; }
+}
+
+/* 光晕最亮那一刻：文字带一点青色光晕（halation），颗粒变粗。
+   注意别在 .dsu-welcome 上加 filter —— 那会新建层叠上下文，
+   把色散层的 mix-blend-mode 隔离掉，故障会在中途"啪"地变回去。 */
+#dsh-startup-root.dsu-peak .dsu-w1,
+#dsh-startup-root.dsu-peak .dsu-w4 {
+  color: var(--dsu-glitch-b);
+  text-shadow: 0 0 14px rgba(41, 113, 184, 0.55);
+  transition: color 260ms ease, text-shadow 260ms ease;
+}
+#dsh-startup-root.dsu-peak .dsu-w3 svg,
+#dsh-startup-root.dsu-peak .dsu-w3 img {
+  filter: drop-shadow(0 0 10px rgba(41, 113, 184, 0.45));
+}
+#dsh-startup-root.dsu-peak .dsu-grain { opacity: 0.11; }
+
+/* 揭幕：整个机位后撤 + 轻微失焦，比单纯淡出更有镜头感 */
+#dsh-startup-root.dsu-handoff {
+  transform: scale(1.035);
+  filter: blur(5px);
+  opacity: 0;
+  transition: opacity 780ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 780ms cubic-bezier(0.4, 0, 0.2, 1), filter 780ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── 页脚 / 字幕 / 进度条 ───────────────────────────────────────────────── */
+.dsu-foot {
+  position: absolute;
+  right: 46px;
+  bottom: 52px;
+  z-index: 24;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--dsu-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--dsu-ink);
+  opacity: 0;
+  transform: translateX(18px);
+  transition: opacity 560ms ease, transform 560ms cubic-bezier(0.16, 0.84, 0.24, 1);
+  transition-delay: 300ms;
+}
+.dsu-foot.dsu-in { opacity: 1; transform: none; }
+.dsu-foot i {
+  display: block;
+  width: 0;
+  height: 7px;
+  background: var(--dsu-ink);
+  transition: width 720ms cubic-bezier(0.2, 0.9, 0.2, 1) 460ms;
+}
+.dsu-foot.dsu-in i { width: 26px; }
+
+.dsu-subtitle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 50px;
+  z-index: 24;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+.dsu-sub-zh {
+  font-family: var(--dsu-zh);
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  color: var(--dsu-ink-soft);
+  text-shadow: var(--dsu-sub-glow);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 420ms ease, transform 420ms cubic-bezier(0.16, 0.84, 0.24, 1);
+}
+.dsu-sub-zh.dsu-in { opacity: 1; transform: none; }
+.dsu-sub-en2 {
+  font-family: var(--dsu-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: var(--dsu-muted);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 420ms ease, transform 420ms cubic-bezier(0.16, 0.84, 0.24, 1);
+}
+.dsu-sub-en2.dsu-in { opacity: 0.85; transform: none; }
+
+/* 底部进度：照原片收成中间一小段，不再横贯整屏跟字幕抢注意力 */
+.dsu-progress {
+  position: absolute;
+  left: 50%;
+  bottom: 11px;
+  width: min(420px, 32vw);
+  height: 3px;
+  transform: translateX(-50%);
+  z-index: 26;
+  background: var(--dsu-hair-soft);
+}
+.dsu-progress::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3px;
+  height: 5px;
+  background-image: repeating-linear-gradient(90deg, var(--dsu-hair) 0 1px, transparent 1px 30px);
+  background-size: auto 5px;
+  background-position: 0 100%;
+  background-repeat: repeat-x;
+  opacity: 0.8;
+}
+.dsu-progress i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--dsu-ink);
+  box-shadow: inset -2px 0 0 var(--dsu-accent);
+  transition: width 460ms cubic-bezier(0.3, 0.9, 0.25, 1);
+}
+.dsu-progress.dsu-accent i { background: var(--dsu-accent); }
+
+/* 阶段计数（左下） */
+.dsu-stepcount {
+  position: absolute;
+  left: 46px;
+  bottom: 52px;
+  z-index: 24;
+  font-family: var(--dsu-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--dsu-muted);
+  opacity: 0;
+  transform: translateX(-18px);
+  transition: opacity 560ms ease, transform 560ms cubic-bezier(0.16, 0.84, 0.24, 1);
+  transition-delay: 400ms;
+}
+.dsu-stepcount.dsu-in { opacity: 1; transform: none; }
+
+/* 跳过 */
+.dsu-skip {
+  position: absolute;
+  right: 46px;
+  top: 48px;
+  z-index: 30;
+  font-family: var(--dsu-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--dsu-muted);
+  border: 1px solid transparent;
+  padding: 5px 10px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 400ms ease, color 200ms ease, border-color 200ms ease;
+}
+.dsu-skip.dsu-in { opacity: 1; }
+.dsu-skip:hover { color: var(--dsu-ink); border-color: var(--dsu-hair); }
+.dsu-skip[hidden] { display: none; }
+
+/* ── 机框装饰层（照原片的疏密：只贴边，不占中间）──────────────────────── */
+/* 四角定位标记 / 一次性扫描线 / 品牌块下单行小字（含时钟）/ 六个阶段格 */
+.dsu-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 17;
+  pointer-events: none;
+}
+
+.dsu-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  transition: opacity 640ms ease, transform 640ms cubic-bezier(0.16, 0.84, 0.24, 1);
+}
+.dsu-corner::before,
+.dsu-corner::after { content: ""; position: absolute; background: var(--dsu-hair); }
+.dsu-corner::before { width: 100%; height: 1px; }
+.dsu-corner::after { width: 1px; height: 100%; }
+.dsu-c-tl { left: 26px; top: 26px; transform: translate(-10px, -10px); }
+.dsu-c-tl::before { top: 0; left: 0; }
+.dsu-c-tl::after { top: 0; left: 0; }
+.dsu-c-tr { right: 26px; top: 26px; transform: translate(10px, -10px); }
+.dsu-c-tr::before { top: 0; right: 0; }
+.dsu-c-tr::after { top: 0; right: 0; }
+.dsu-c-bl { left: 26px; bottom: 26px; transform: translate(-10px, 10px); }
+.dsu-c-bl::before { bottom: 0; left: 0; }
+.dsu-c-bl::after { bottom: 0; left: 0; }
+.dsu-c-br { right: 26px; bottom: 26px; transform: translate(10px, 10px); }
+.dsu-c-br::before { bottom: 0; right: 0; }
+.dsu-c-br::after { bottom: 0; right: 0; }
+.dsu-frame.dsu-in .dsu-corner { opacity: 1; transform: none; }
+.dsu-frame.dsu-in .dsu-c-tr { transition-delay: 90ms; }
+.dsu-frame.dsu-in .dsu-c-br { transition-delay: 180ms; }
+.dsu-frame.dsu-in .dsu-c-bl { transition-delay: 270ms; }
+
+/* 一次性扫描线：底板洗白之后自上而下扫一遍，验准时再扫一次 */
+.dsu-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -14%;
+  height: 96px;
+  opacity: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.045) 58%,
+    rgba(0, 0, 0, 0.1) 86%,
+    rgba(0, 0, 0, 0.16) 97%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+.dsu-dark .dsu-scanline {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 58%,
+    rgba(255, 255, 255, 0.11) 86%,
+    rgba(255, 255, 255, 0.18) 97%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+.dsu-scanline.dsu-go { animation: dsu-scan 2600ms cubic-bezier(0.42, 0, 0.58, 1) 1; }
+@keyframes dsu-scan {
+  0% { top: -14%; opacity: 0; }
+  10% { opacity: 1; }
+  86% { opacity: 1; }
+  100% { top: 102%; opacity: 0; }
+}
+
+/* 品牌块下方的一行小字：版本 + 实时时钟（时钟点亮主题橙） */
+.dsu-meta {
+  position: absolute;
+  left: 46px;
+  top: 170px;
+  z-index: 20;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--dsu-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--dsu-muted);
+  opacity: 0;
+  transform: translateX(-18px);
+  transition: opacity 560ms ease, transform 560ms cubic-bezier(0.16, 0.84, 0.24, 1);
+  transition-delay: 330ms;
+}
+.dsu-meta.dsu-in { opacity: 1; transform: none; }
+.dsu-meta-2 { color: var(--dsu-accent); }
+
+/* 六个阶段格：横排在左栏小字下面，走过的压暗、当前的点亮并拉长 */
+.dsu-slats {
+  position: absolute;
+  left: 46px;
+  top: 196px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  transform: translateX(-18px);
+  transition: opacity 560ms ease, transform 560ms cubic-bezier(0.16, 0.84, 0.24, 1);
+  transition-delay: 420ms;
+}
+.dsu-slats.dsu-in { opacity: 1; transform: none; }
+.dsu-slat {
+  width: 20px;
+  height: 2px;
+  background: var(--dsu-hair);
+  transition: width 460ms cubic-bezier(0.3, 0.9, 0.25, 1), background-color 320ms ease,
+    opacity 320ms ease;
+}
+.dsu-slat.dsu-past { background: var(--dsu-ink); opacity: 0.3; }
+.dsu-slat.dsu-on { width: 34px; background: var(--dsu-accent); opacity: 1; }
+
+/* 女声播报指示条：出声时点亮主题橙并跳动（对应参考片里女声念状态行的时刻） */
+.dsu-voice {
+  position: absolute;
+  left: 46px;
+  bottom: 96px;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 16px;
+  opacity: 0;
+  transition: opacity 560ms ease;
+  transition-delay: 480ms;
+}
+.dsu-voice.dsu-in { opacity: 1; }
+.dsu-voice i {
+  width: 2px;
+  height: 20%;
+  background: var(--dsu-hair);
+  transition: height 140ms ease, background-color 240ms ease;
+}
+.dsu-voice.dsu-on i {
+  background: var(--dsu-accent);
+  animation: dsu-voice 560ms ease-in-out infinite;
+}
+.dsu-voice i:nth-child(1) { animation-delay: 0ms; }
+.dsu-voice i:nth-child(2) { animation-delay: 90ms; }
+.dsu-voice i:nth-child(3) { animation-delay: 180ms; }
+.dsu-voice i:nth-child(4) { animation-delay: 60ms; }
+.dsu-voice i:nth-child(5) { animation-delay: 140ms; }
+@keyframes dsu-voice {
+  0%, 100% { height: 20%; }
+  50% { height: 100%; }
+}
+
+/* 窄窗口里 idline 原会与准星环撞上；现在已挪到页脚下方，不再需要隐藏。
+   但仍保留窄屏下的字距收紧，避免和右下立绘/页脚挤在一起。 */
+@media (max-width: 1180px) {
+  .dsu-idline { letter-spacing: 0.14em; }
+}
+
+/* 无障碍：尊重系统"减少动态效果" */
+@media (prefers-reduced-motion: reduce) {
+  #dsh-startup-root .dsu-ret-rot-a,
+  #dsh-startup-root .dsu-ret-rot-b { animation: none; }
+  #dsh-startup-root .dsu-scanline.dsu-go { animation: none; }
+}
+
+/* ── 赛博电子风人物立绘（第二页起右下角）──────────────────────────────── */
+#dsh-startup-root .dsu-mascot {
+  position: fixed;
+  right: 0;
+  bottom: 84px;
+  width: 250px;
+  z-index: 22;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(36px);
+  transition: opacity 700ms cubic-bezier(.2,.9,.3,1), transform 700ms cubic-bezier(.2,.9,.3,1);
+}
+#dsh-startup-root .dsu-mascot.dsu-on {
+  opacity: 1;
+  transform: translateX(0);
+}
+/* 竖屏 / 窄屏适配（2026-10-19）：
+   立绘原本固定 250px 宽，在 390px 手机上占掉 64% 宽度，
+   又压在「授予访问权限」按钮区和底部状态行上，导致按钮点不到、文字被挡。
+   窄屏下缩小立绘并压低层级体积，保证操作区始终可读可点。 */
+@media (max-width: 600px), (max-height: 560px) {
+  #dsh-startup-root .dsu-mascot {
+    width: min(150px, 38vw);
+    bottom: 64px;
+    opacity: 0.9;
+  }
+}
+@media (max-width: 420px) {
+  #dsh-startup-root .dsu-mascot {
+    width: min(120px, 32vw);
+    bottom: 56px;
+  }
+}
+/* 窄屏底部排版（2026-10-19）：
+   左下阶段计数、底部居中字幕、右下页脚三者在窄屏会挤成一团，
+   这里统一缩小字号、收窄左右留白，并把页脚下移错开。
+   主状态标题（.dsu-status 40px）在窄屏也会溢出，一并缩小。 */
+@media (max-width: 600px) {
+  #dsh-startup-root .dsu-status,
+  #dsh-startup-root .dsu-status.dsu-zhline {
+    font-size: 24px;
+    letter-spacing: 0.14em;
+  }
+  #dsh-startup-root .dsu-stepcount {
+    left: 20px;
+    bottom: 34px;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+  #dsh-startup-root .dsu-subtitle {
+    bottom: 52px;
+    gap: 4px;
+    padding: 0 20px;
+  }
+  #dsh-startup-root .dsu-sub-zh { font-size: 12px; }
+  #dsh-startup-root .dsu-sub-en2 { font-size: 9px; letter-spacing: 0.2em; }
+  #dsh-startup-root .dsu-foot {
+    right: 20px;
+    bottom: 16px;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+  #dsh-startup-root .dsu-foot.dsu-in i { width: 16px; }
+  /* idline 对齐页脚正下方：窄屏页脚在 bottom:16px，idline 再往下贴 */
+  #dsh-startup-root .dsu-idline {
+    right: 20px;
+    bottom: 2px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+  #dsh-startup-root .dsu-skip { right: 20px; top: 28px; font-size: 9px; }
+}
+#dsh-startup-root .dsu-mascot-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  /* 霓虹呼吸辉光 */
+  animation: dsu-mascot-glow 3.2s ease-in-out infinite;
+}
+/* 霓虹辉光呼吸 */
+@keyframes dsu-mascot-glow {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(255, 40, 40, 0.35)) drop-shadow(0 0 18px rgba(255, 40, 40, 0.18)); }
+  50%      { filter: drop-shadow(0 0 12px rgba(255, 40, 40, 0.6)) drop-shadow(0 0 34px rgba(255, 40, 40, 0.32)); }
+}
+/* 偶发 glitch 抖动：每 6s 轻微错位两帧，其余时间静止 */
+#dsh-startup-root .dsu-mascot.dsu-on .dsu-mascot-img {
+  animation:
+    dsu-mascot-glow 3.2s ease-in-out infinite,
+    dsu-mascot-glitch 6s steps(1, end) infinite;
+}
+@keyframes dsu-mascot-glitch {
+  0%, 93.9%, 96.1%, 100% { transform: translate(0, 0); }
+  94%  { transform: translate(-3px, 1px); opacity: 0.85; }
+  94.5%{ transform: translate(2px, -1px); opacity: 0.95; }
+  95%  { transform: translate(-2px, 0); opacity: 0.9; }
+  95.5%{ transform: translate(1px, 1px); }
+}
+/* ── 第 5 款立绘「长征（逻辑）」：人民英雄纪念碑群像浮雕 ────────────────
+   这张是逐帧素材抽出的静态图（黑底已抠成透明），主体是红黑霓虹浮雕，
+   与前面几款的线稿人像不同 —— 线稿靠描边辉光，浮雕靠"体积感 + 呼吸感"。
+   所以单独给一套赛博电子风动效：辉光呼吸 + 色彩呼吸 + 偶发信号错位。
+   注意：不要在这里加横向亮带 / 红色闪光扫描 —— 会盖住浮雕本身的层次。 */
+#dsh-startup-root .dsu-mascot[data-mascot="4"] .dsu-mascot-img {
+  animation:
+    dsu-mascot-4-scan 4.6s ease-in-out infinite,
+    dsu-mascot-4-hue 7s ease-in-out infinite,
+    dsu-mascot-4-glitch 9s steps(1, end) infinite;
+}
+/* 霓虹辉光呼吸：光晕明暗起伏（不做横向亮带扫描，避免糊住浮雕细节） */
+@keyframes dsu-mascot-4-scan {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(255, 46, 46, 0.42)) drop-shadow(0 0 30px rgba(255, 30, 30, 0.22)) brightness(0.96) contrast(1.06);
+  }
+  45% {
+    filter: drop-shadow(0 0 18px rgba(255, 60, 60, 0.7)) drop-shadow(0 0 46px rgba(255, 20, 20, 0.35)) brightness(1.12) contrast(1.12);
+  }
+  70% {
+    filter: drop-shadow(0 0 14px rgba(255, 90, 60, 0.55)) drop-shadow(0 0 38px rgba(255, 40, 20, 0.28)) brightness(1.04) contrast(1.09);
+  }
+}
+/* 色彩呼吸：在正红与偏橙之间轻微游走，像 CRT 灯管不稳 */
+@keyframes dsu-mascot-4-hue {
+  0%, 100% { transform: translateZ(0) scale(1); }
+  50%      { transform: translateZ(0) scale(1.012); }
+}
+/* 偶发信号错位：每隔 9 秒闪一次，幅度比人像款更大（浮雕更有"信号不稳"感） */
+@keyframes dsu-mascot-4-glitch {
+  0%, 92.4%, 96.6%, 100% { transform: translate(0, 0) skewX(0); }
+  93%   { transform: translate(-4px, 1px) skewX(-0.6deg); opacity: 0.82; }
+  93.6% { transform: translate(3px, -1px) skewX(0.5deg); opacity: 0.94; }
+  94.2% { transform: translate(-2px, 2px) skewX(-0.3deg); opacity: 0.88; }
+  95%   { transform: translate(1px, -1px); opacity: 0.97; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #dsh-startup-root .dsu-mascot[data-mascot="4"] .dsu-mascot-img { animation: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #dsh-startup-root .dsu-mascot-img { animation: none; }
+}
+
+/* ── 事件窗口（动画结束后、进入主界面前）──────────────────────────────── */
+.dsu-event { z-index: 2147483100;
+  position: fixed;
+  inset: 0;
+  /* 必须高于首屏黑幕层(2147482999)与挂载点(2147483000)，否则降世窗口会被黑幕盖住 */
+  z-index: 2147483200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 8, 10, 0.72);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 320ms cubic-bezier(.2,.9,.3,1);
+}
+/* 淡出期间不再拦截任何点击/命中测试：否则窗口已透明，却仍挡在主界面上，
+   手指/鼠标点下去没反应，看起来就像"黑了一下还没进去"（2026-10-19） */
+.dsu-event:not(.dsu-in) { pointer-events: none; }
+.dsu-event[hidden] { display: none; }
+.dsu-event.dsu-in { opacity: 1; }
+.dsu-event-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: min(430px, 86vw);
+  max-height: 88vh;
+  transform: translateY(18px) scale(0.97);
+  transition: transform 520ms cubic-bezier(.2,.9,.3,1);
+}
+.dsu-event.dsu-in .dsu-event-card {
+  transform: translateY(0) scale(1);
+}
+.dsu-event-img {
+  display: block;
+  width: 100%;
+  max-height: calc(88vh - 64px);
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 60, 60, 0.22);
+  user-select: none;
+}
+/* 进入按钮：压在图片下方，红黑机要风，与插件配色一致 */
+.dsu-event-btn {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+  margin-top: 14px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 30px;
+  cursor: pointer;
+  border: 1px solid rgba(199, 0, 0, 0.85);
+  background: linear-gradient(180deg, #2a0a0a 0%, #170404 100%);
+  color: #ffe9e0;
+  font-family: var(--dsu-zh);
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  box-shadow: 0 0 14px rgba(199, 0, 0, 0.35), inset 0 0 10px rgba(199, 0, 0, 0.18);
+  transition: transform 130ms cubic-bezier(.3,0,.7,1), box-shadow 130ms ease, filter 130ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.dsu-event-btn:hover {
+  filter: brightness(1.25);
+  box-shadow: 0 0 20px rgba(199, 0, 0, 0.55), inset 0 0 12px rgba(199, 0, 0, 0.26);
+}
+/* 按压动效：按下去缩 + 变暗，松开弹回 */
+.dsu-event-btn:active,
+.dsu-event-btn.dsu-pressed {
+  transform: scale(0.94) translateY(2px);
+  filter: brightness(0.72);
+  box-shadow: 0 0 6px rgba(199, 0, 0, 0.25), inset 0 0 16px rgba(0, 0, 0, 0.6);
+}
+.dsu-event-btn-zh { font-weight: 700; }
+/* 副文案：按下Enter进入，比主文案小一号，风格一致 */
+.dsu-event-btn-sub {
+  font-family: var(--dsu-zh);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  font-weight: 400;
+  opacity: 0.58;
+  border-top: 1px solid rgba(255, 233, 224, 0.22);
+  padding-top: 5px;
+  line-height: 1;
+}
+.dsu-event-btn-en {
+  font-family: var(--dsu-mono);
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  opacity: 0.62;
+  border-left: 1px solid rgba(255, 233, 224, 0.28);
+  padding-left: 12px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dsu-event,
+  .dsu-event-card { transition: none; }
+}

@@ -1,0 +1,76 @@
+# 密钥与本机数据（绝不提交）
+.env
+.env.*
+!.env.example
+.github_token
+config/*_overrides.yaml
+config/persona_seed.json
+data/
+logs/
+*.db
+*.db-shm
+*.db-wal
+*.log
+*.bak-*
+*.ttf
+*.otf
+docs/BrainN*.md
+
+# Python / 虚拟环境
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 构建产物与安装包（走 GitHub Releases）
+build/
+dist/
+dist_desktop/
+build_desktop/dist/
+build_desktop/work/
+build_desktop/package/
+build_desktop/*.log
+build_desktop/*.png
+build_desktop/*.err
+build_desktop/*.txt
+_internal/
+tools/
+desktop_runtime/electron/
+desktop_runtime/dsh_pet/
+desktop_runtime/dsh-pet/
+desktop_runtime/dsh_home/
+*.exe
+*.apk
+*.zip
+*.7z
+*.msi
+
+# Node / 前端构建
+node_modules/
+desktop_runtime/dsh-pet-app/node_modules/
+live2d-avatar/node_modules/
+live2d-avatar/dist/
+live2d-avatar/dist-lib/
+
+# Android 构建与本机配置
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+android/local.properties
+android/captures/
+android/app/src/main/assets/seed.zip
+
+# 第三方 Live2D 模型 / 字体（未确认授权前不随仓库分发）
+live2d-avatar/assets/whale_girl/
+live2d-avatar/public/live2d/
+live2d-avatar/public/live2dcubismcore.min.js
+mobile/web/whale/model/
+mobile/web/whale/fonts/
+mobile/web/whale/live2dcubismcore.min.js
+
+# 运行临时目录
+mobile/_life_tmp/
+mobile/logs/
+_tmp/

@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>小鲸鱼</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root { --safe-top: 0px; --safe-bottom: 0px; --kb: 0px; }
+  html, body { width: 100%; height: 100%; overflow: hidden;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  /* 键盘弹起：输入条/评论/通话栏整体抬到键盘上方 */
+  html.kb-open .inputbar { bottom: var(--kb); padding-bottom: 10px; }
+  html.kb-open #stream { bottom: calc(var(--kb) + 118px); }
+  html.kb-open #callbar { bottom: var(--kb); padding-bottom: 18px; }
+  html.kb-open #bubble.call-sub { bottom: calc(var(--kb) + 102px); }
+  html { background: #bfe3f2; }
+  #stage { position: fixed; inset: 0; }
+  #stage canvas { touch-action: none; }
+  .bg { position: fixed; inset: 0; background: #bfe3f2 center/cover no-repeat; z-index: -1;
+    opacity: 0; transition: opacity .9s ease; }
+  .bg.on { opacity: 1; }
+
+  .topbar { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center;
+    padding: calc(var(--safe-top) + 10px) 14px 10px; z-index: 10; pointer-events: none; }
+  .topbar > * { pointer-events: auto; }
+  .back { width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(255,255,255,.75);
+    color: #3a6b84; font-size: 17px; line-height: 34px; text-align: center; }
+  .title { margin-left: 10px; color: #2c5a73; font-size: 17px; font-weight: 600; text-shadow: 0 1px 2px rgba(255,255,255,.6); white-space: nowrap; }
+  .smart-wrap { display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.75); border-radius: 17px; padding: 5px 10px; }
+  .right-group { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .smart-wrap span { font-size: 12px; color: #3a6b84; }
+  .smart-wrap input { position: relative; width: 40px; height: 22px; appearance: none; background: #c9d8e0;
+    border-radius: 11px; outline: none; transition: background .2s; }
+  .smart-wrap input:checked { background: #4da3c7; }
+  .smart-wrap input::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+    border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .smart-wrap input:checked::after { left: 20px; }
+  .cfg-btn { width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(255,255,255,.75);
+    color: #3a6b84; font-size: 16px; line-height: 34px; text-align: center; }
+
+  #tts-mask { position: fixed; inset: 0; background: rgba(20,45,60,.45); z-index: 30; display: none; }
+  #tts-mask.show { display: flex; align-items: center; justify-content: center; }
+  #tts-panel { width: 84%; max-width: 340px; background: #f4fafd; border-radius: 16px; padding: 16px;
+    box-shadow: 0 8px 30px rgba(30,70,95,.3); }
+  #tts-panel .tt { font-size: 15px; font-weight: 600; color: #2c5a73; margin-bottom: 10px; }
+  #tts-panel label { display: block; font-size: 12px; color: #3a6b84; margin: 8px 0 3px; }
+  #tts-panel input, #tts-panel select { width: 100%; border: 1px solid #b8d4e2; border-radius: 10px;
+    padding: 8px 10px; font-size: 14px; background: #fff; color: #2c5a73; outline: none; }
+  #tts-panel .row { display: flex; gap: 8px; margin-top: 14px; }
+  #tts-panel .row button { flex: 1; border: none; border-radius: 10px; padding: 9px 0; font-size: 14px; }
+  #mm-test { background: #e3f1f8; color: #2c5a73; }
+  #mm-save { background: #4da3c7; color: #fff; }
+  #mm-close { background: #eef3f6; color: #7a97a6; }
+  #tts-panel .hint { font-size: 11px; color: #7a97a6; line-height: 1.6; margin-top: 10px; }
+  .balRow { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin-top: 10px; font-size: 12px; color: #3a6b84; }
+  #mm-balance { flex: 1; line-height: 1.4; }
+  #mm-balance-refresh { border: none; border-radius: 10px; padding: 6px 10px;
+    background: #e3f1f8; color: #2c5a73; font-size: 12px; white-space: nowrap; }
+
+
+  /* removed */
+
+  #bubble { position: fixed; left: 50%; top: 16%; transform: translateX(-50%) scale(.9); max-width: 78%;
+    background: rgba(255,255,255,.92); color: #2c5a73; border-radius: 16px; padding: 10px 14px;
+    font-size: 15px; line-height: 1.5; opacity: 0; transition: opacity .25s, transform .25s;
+    box-shadow: 0 4px 14px rgba(60,110,140,.18); z-index: 9; pointer-events: none; }
+  #bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+  #bubble::after { content: ''; position: absolute; left: 50%; bottom: -7px; margin-left: -7px;
+    border: 7px solid transparent; border-top-color: rgba(255,255,255,.92); border-bottom: none; }
+
+  .inputbar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 8px;
+    padding: 10px 12px calc(var(--safe-bottom) + 10px); z-index: 10;
+    background: linear-gradient(transparent, rgba(190,225,240,.85) 40%); }
+  #msg { flex: 1; border: none; border-radius: 20px; padding: 10px 16px; font-size: 15px;
+    background: rgba(255,255,255,.9); color: #2c5a73; outline: none; }
+  #send { border: none; border-radius: 20px; padding: 0 18px; background: #4da3c7; color: #fff;
+    font-size: 15px; white-space: nowrap; writing-mode: horizontal-tb; flex: 0 0 auto;
+    min-width: 64px; display: flex; align-items: center; justify-content: center; }
+  #send:disabled { background: #a8c6d4; }
+
+  /* 直播评论流：右下角半透明滚动，不挡点击 */
+  #stream { position: fixed; right: 10px; bottom: 118px; width: 58%; max-width: 248px;
+    display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+    z-index: 8; pointer-events: none; }
+  #stream .st { max-width: 100%; background: rgba(255,255,255,.74); color: #2c5a73;
+    border-radius: 12px; padding: 5px 9px; font-size: 12px; line-height: 1.45;
+    box-shadow: 0 2px 8px rgba(60,110,140,.12); word-break: break-word;
+    animation: stIn .28s ease-out; }
+  #stream .st.me { background: rgba(77,163,199,.86); color: #fff; }
+  @keyframes stIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+
+  #logBtn, #callBtn { width: 38px; height: 38px; flex: 0 0 auto; border: none; border-radius: 50%;
+    background: rgba(255,255,255,.86); color: #3d7f9c; display: flex; align-items: center; justify-content: center; }
+  #logBtn svg, #callBtn svg { width: 20px; height: 20px; }
+  #callBtn { background: #4da3c7; color: #fff; box-shadow: 0 4px 14px rgba(40,120,150,.28); }
+  .inputbar.hide { display: none; }
+
+  #callbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 12; display: none;
+    gap: 26px; align-items: flex-end; justify-content: center;
+    padding: 18px 10px calc(var(--safe-bottom) + 18px);
+    background: linear-gradient(transparent, rgba(0,0,0,.55) 42%); }
+  #callbar.on { display: flex; }
+  #callbar button { width: 58px; height: 58px; border: none; border-radius: 50%; padding: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    color: #fff; background: rgba(255,255,255,.18); backdrop-filter: blur(14px); }
+  #callbar button svg { width: 22px; height: 22px; }
+  #callbar button span { font-size: 10px; line-height: 1; opacity: .9; }
+  #callbar button.end { background: #e5484d; box-shadow: 0 6px 18px rgba(229,72,77,.35); }
+  #callbar button.on { background: rgba(77,163,199,.85); }
+
+  #callTop { position: fixed; top: calc(var(--safe-top) + 8px); left: 50%; transform: translateX(-50%);
+    z-index: 13; display: none; text-align: center; color: #fff;
+    text-shadow: 0 1px 6px rgba(0,0,0,.55); pointer-events: none; }
+  #callTop.on { display: block; }
+  #callTop .name { font-size: 16px; font-weight: 600; letter-spacing: .02em; }
+  #callTop .meta { font-size: 11px; opacity: .86; margin-top: 2px; }
+
+  #callShade { position: fixed; inset: 0; z-index: 6; display: none; pointer-events: none;
+    background: linear-gradient(180deg, rgba(0,0,0,.30), transparent 24%, transparent 62%, rgba(0,0,0,.62)); }
+  #callShade.on { display: block; }
+
+  /* 电脑版视频通话：右上角摄像头自拍小窗 */
+  #callSelf { position: fixed; top: calc(var(--safe-top) + 58px); right: 14px; z-index: 11;
+    width: 112px; height: 148px; border-radius: 14px; overflow: hidden; display: none;
+    background: #0b1420; box-shadow: 0 10px 26px rgba(0,0,0,.4); }
+  #callSelf.on { display: block; }
+  #callSelf video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+
+  #bubble.call-sub { top: auto; bottom: calc(var(--safe-bottom) + 102px); max-width: 80%;
+    background: rgba(0,0,0,.55); color: #fff; font-size: 13px; line-height: 1.45; border-radius: 14px;
+    padding: 7px 12px; box-shadow: none; backdrop-filter: blur(8px); }
+  #bubble.call-sub::after { display: none; }
+
+  #streamSheet { position: fixed; inset: 0; background: rgba(224,242,249,.97); z-index: 20;
+    display: none; flex-direction: column;
+    padding: calc(var(--safe-top) + 14px) 14px 14px; }
+  #streamSheet.on { display: flex; }
+  #streamSheet .shHead { display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px; color: #2c5a73; font-size: 16px; font-weight: 600; }
+  #streamSheet .shHead button { border: none; background: transparent; font-size: 24px; color: #7a97a6; }
+  #streamList { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  #streamList .sl { background: #fff; border-radius: 12px; padding: 8px 11px; font-size: 13px;
+    line-height: 1.5; color: #2c5a73; box-shadow: 0 1px 4px rgba(60,110,140,.1); }
+  #streamList .sl.me { background: #d7ecf6; }
+  #streamList .sl b { display: block; font-size: 10px; color: #7a97a6; font-weight: 600; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+<div class="bg on" id="bgA" style="background-image:url('whale/scene_bg.jpg')"></div>
+<div class="bg" id="bgB"></div>
+<div id="stage"></div>
+<div id="callShade"></div>
+<div class="topbar">
+  <button class="back" onclick="window.__whaleBack?window.__whaleBack():history.back()">‹</button>
+  <div class="title">小鲸鱼</div>
+  <div class="right-group">
+    <div class="smart-wrap" title="语音播报开关"><span>语音</span><input type="checkbox" id="tts-voice"></div>
+    <button class="cfg-btn" id="tts-cfg" title="云端音色设置">♪</button>
+  </div>
+</div>
+<div id="callTop">
+  <div class="name">小鲸鱼</div>
+  <div class="meta"><span id="callStateText">视频通话中</span> <b id="callTime">00:00</b></div>
+</div>
+<div id="callSelf"><video id="callSelfVideo" muted autoplay playsinline></video></div>
+<div id="tts-mask">
+  <div id="tts-panel">
+    <div class="tt">云端真人音色（MiniMax）</div>
+    <label>API Key</label>
+    <input id="mm-key" type="password" placeholder="在 minimaxi.com 开放平台申请" autocomplete="off">
+    <label>Group ID</label>
+    <input id="mm-group" placeholder="和 Key 同一页面可查" autocomplete="off">
+    <label>音色</label>
+    <select id="mm-voice">
+      <option value="whale_jelpeita_01">洁尔佩塔（克隆 · 终末地）</option>
+      <option value="whale_xisite_01">鲸鱼娘西丝特（克隆）</option>
+      <option value="female-shaonv">青涩少女</option>
+      <option value="female-tianmei">甜妹</option>
+      <option value="Chinese (Mandarin)_Soft_Girl">软妹</option>
+      <option value="female-yujie">温柔御姐</option>
+      <option value="__custom">自定义 voice_id…</option>
+    </select>
+    <input id="mm-custom" placeholder="填自定义 voice_id" style="display:none; margin-top:6px" autocomplete="off">
+    <label>MiniMax Admin Key（查钱包余额用，可留空）</label>
+    <input id="mm-admin" type="password" placeholder="Admin Key 与 TTS Key 不同" autocomplete="off">
+    <div class="balRow"><span id="mm-balance">余额：未查询</span><button id="mm-balance-refresh">刷新余额</button></div>
+    <div class="row">
+      <button id="mm-test">试听</button>
+      <button id="mm-save">保存</button>
+      <button id="mm-close">关闭</button>
+    </div>
+    <div class="hint">保存后小鲸鱼优先用云端真人音色说话；网络或额度出问题会自动退回系统语音。不填则只用系统语音。Key 只存在本机。</div>
+  </div>
+</div>
+<div id="bubble"></div>
+<div id="stream"></div>
+<div class="inputbar">
+  <button id="callBtn" aria-label="视频通话">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="7" width="12" height="10" rx="2"/><path d="M15 10l6-3v10l-6-3" stroke-linejoin="round"/></svg>
+  </button>
+  <button id="logBtn" aria-label="聊天记录">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v11H9l-5 4V5z" stroke-linejoin="round"/><path d="M8 9h8M8 12h5" stroke-linecap="round"/></svg>
+  </button>
+  <input id="msg" type="text" placeholder="和小鲸鱼说点什么…" maxlength="120" autocomplete="off">
+  <button id="send">发送</button>
+</div>
+<div id="callbar">
+  <button id="callLens">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="12" height="10" rx="2.5"/><path d="M15 10l6-3v10l-6-3" stroke-linejoin="round"/><path d="M7 12h4" stroke-linecap="round"/></svg>
+    <span>反转</span>
+  </button>
+  <button id="callEye">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12s3.4-5 9-5 9 5 9 5-3.4 5-9 5-9-5-9-5z"/><path d="M5 5l14 14" stroke-linecap="round"/></svg>
+    <span>闭眼</span>
+  </button>
+  <button id="callLook">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke-linecap="round"/></svg>
+    <span>看这个</span>
+  </button>
+  <button id="callEnd" class="end">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 14c5-4 13-4 18 0l-3 3-3-2-3 2-3-2-3 2z" stroke-linejoin="round"/></svg>
+    <span>挂断</span>
+  </button>
+</div>
+<div id="streamSheet">
+  <div class="shHead"><span>和小鲸鱼的记录</span><button id="streamClose" aria-label="关闭">×</button></div>
+  <div id="streamList"></div>
+</div>
+<script src="/desktop/bridge.js?v=p4-1"></script>
+<script src="whale/live2dcubismcore.min.js"></script>
+<script src="whale/whale-avatar.js"></script>
+<script>
+(function () {
+  var bubble = document.getElementById('bubble');
+  var msg = document.getElementById('msg');
+  var sendBtn = document.getElementById('send');
+  var bubbleTimer = 0;
+  var streamEl = document.getElementById('stream');
+  var streamList = document.getElementById('streamList');
+  var streamSheet = document.getElementById('streamSheet');
+  var lastHerLine = '', lastMeLine = '';
+  var smartOn = false;
+
+  function loadSmartSetting(){
+    fetch('/api/whale/settings', {cache: 'no-store'}).then(function (r) { return r.json(); }).then(function (d) {
+      smartOn = !!(d && d.smart);
+      if (smartOn){
+        fetch('/api/whale/brain/start', {method: 'POST'}).catch(function () {});
+      }
+    }).catch(function () {});
+  }
+  loadSmartSetting();
+
+  var soul = new WhaleAvatar.LocalSoulAdapter();
+  soul.onSpeak(function (s) {
+    bubble.textContent = s.text;
+    bubble.classList.add('show');
+    clearTimeout(bubbleTimer);
+    var hold = Math.min(8000, 2200 + s.text.length * 120);
+    bubbleTimer = setTimeout(function () { bubble.classList.remove('show'); }, hold);
+    addStream('her', s.text);
+    if (callActive) {
+      herSpeakUntil = Date.now() + hold;
+      clearTimeout(listenResumeTimer);
+      try { Android.stopWorldListening(); } catch (e) {}
+      listenResumeTimer = setTimeout(startListeningIfQuiet, hold + 280);
+    }
+  });
+
+  // ---- 互动：点她不同部位、隔一会儿还会主动搭话 ----
+  var REACT = {
+    head: [
+      ['唔……摸头的话，会变乖的哦。', 0.55, 0.35],
+      ['咕～主人的手好暖，再摸一下嘛。', 0.6, 0.3],
+      ['头发要被你揉乱啦，不过……不讨厌。', 0.4, 0.25]
+    ],
+    body: [
+      ['呀！突然碰过来，尾巴都炸起来了。', 0.15, 0.6],
+      ['干嘛啦，本鱼在认真发呆呢。', 0.1, 0.3],
+      ['贴贴可以，但是要小声一点哦。', 0.5, 0.3]
+    ],
+    tail: [
+      ['尾、尾巴不行！那里很敏感的啦！', 0.3, 0.75],
+      ['尾巴甩到你了，对不起嘛。', 0.35, 0.2],
+      ['再戳我就游走了哦……骗你的。', 0.45, 0.35]
+    ]
+  };
+  var IDLE_LINES = [
+    ['主人今天也在这里，我就安心啦。', 0.4, 0.2],
+    ['海底现在很安静呢……我听得见你的呼吸。', 0.2, 0.1],
+    ['要不要摸摸本鱼的头？本鱼不会躲的。', 0.5, 0.3],
+    ['有点想你上次说的那个吃的，叫什么来着？', 0.25, 0.25],
+    ['本鱼在这里哦，不会走的。', 0.55, 0.15],
+    ['发呆的时候，脑子里都是主人。', 0.6, 0.3]
+  ];
+  var lastTapAt = 0, lastLine = '';
+  function say(line, force) {
+    if (!line) return;
+    if (!force && line[0] === lastLine) return;
+    lastLine = line[0];
+    soul.injectReply(line[0], line[1], line[2]);
+  }
+  function onAvatarEvent(ev) {
+    if (!ev) return;
+    if (ev.type === 'debug'){ window.__dbg = ev.payload; return; }
+    if (ev.type === 'ready'){ window.__ready = ev.payload; return; }
+    if (ev.type === 'error'){ window.__err = ev.payload; return; }
+    if (ev.type === 'head_hug'){ lastTapAt = Date.now(); say(['太、太近了啦……不过可以再摸一下。', 0.62, 0.5], true); return; }
+    if (ev.type === 'annoyed'){ lastTapAt = Date.now(); say(['你再戳，我真的要生气了咕！', -0.5, 0.6], true); return; }
+    if (ev.type === 'lonely'){ say(['你还在吗……我一个人有点安静。', -0.3, -0.1], true); return; }
+    if (ev.type !== 'tap') return;
+    window.__tap = ev.payload;
+    var now = Date.now();
+    if (now - lastTapAt < 1400) return;
+    lastTapAt = now;
+    var zone = (ev.payload && ev.payload.zone) || 'body';
+    var pool = REACT[zone] || REACT.body;
+    say(pool[Math.floor(Math.random() * pool.length)]);
+  }
+
+  try { localStorage.removeItem('whale.model'); } catch (e) {}
+  var mountOpts = {
+    container: document.getElementById('stage'),
+    modelUrl: encodeURI('whale/model/大肥鱼.model3.json'),
+    soul: soul,
+    pixelRatioCap: 2,
+    onEvent: onAvatarEvent
+  };
+  var avatar = WhaleAvatar.mount(mountOpts);
+  window.__whale = avatar; // 调试用：CDP 里可直接读参数/表情槽位
+
+  /* 2D 背景：按她所在地的天气 + 她那边的时间，在 12 张背景之间淡入切换 */
+  (function weatherBackground(){
+    var front = 'A', key = '';
+    function periodOf(text){
+      var m = /^(\d{1,2})/.exec(String(text || ''));
+      var h = m ? parseInt(m[1], 10) : new Date().getHours();
+      if (!isFinite(h)) h = new Date().getHours();
+      if (h >= 5 && h < 8) return 'dawn';
+      if (h >= 8 && h < 17) return 'day';
+      if (h >= 17 && h < 20) return 'dusk';
+      return 'night';
+    }
+    function weatherOf(text){
+      text = String(text || '');
+      if (/雪/.test(text)) return 'snow';
+      if (/雨|雷|暴雨|阵雨/.test(text)) return 'rain';
+      return 'clear';
+    }
+    function show(url){
+      var a = document.getElementById('bgA');
+      var b = document.getElementById('bgB');
+      if (!a || !b) return;
+      var next = front === 'A' ? b : a;
+      var old = front === 'A' ? a : b;
+      next.style.backgroundImage = 'url("' + url + '")';
+      next.classList.add('on');
+      old.classList.remove('on');
+      front = front === 'A' ? 'B' : 'A';
+    }
+    function apply(period, weather){
+      var nextKey = period + '-' + weather;
+      if (nextKey === key) return;
+      key = nextKey;
+      var img = new Image();
+      img.onload = function () { show('whale/bg/' + nextKey + '.jpg'); };
+      img.src = 'whale/bg/' + nextKey + '.jpg';
+    }
+    function pull(){
+      fetch('/api/world', {cache: 'no-store'})
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var wd = (d && d.her_weather) || {};
+          apply(periodOf(d && d.her_time), weatherOf(wd.text));
+        })
+        .catch(function () { apply(periodOf(''), 'clear'); });
+    }
+    window.__bgDebug = function () { return key; };
+    setTimeout(pull, 500);
+    setInterval(pull, 10 * 60 * 1000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) pull();
+    });
+  })();
+
+  var voiceBox = document.getElementById('tts-voice');
+  var voiceOn = localStorage.getItem('whale.voice') !== '0';
+  voiceBox.checked = voiceOn;
+  avatar.setVoiceEnabled(voiceOn);
+  voiceBox.addEventListener('change', function () {
+    localStorage.setItem('whale.voice', voiceBox.checked ? '1' : '0');
+    avatar.setVoiceEnabled(voiceBox.checked);
+  });
+
+  // 2D 页不显示桌面桌宠（她俩是同一个人，不在同一页出现）
+  try{ if (window.Android && Android.setWhalePage) Android.setWhalePage(true); }catch (e) {}
+  window.addEventListener('pageshow', function () {
+    try{ if (window.Android && Android.setWhalePage) Android.setWhalePage(true); }catch (e) {}
+  });
+
+  // ---- 云端真人音色（MiniMax）配置 ----
+  // 音色预设带各自音调：克隆音色必须 0（升调会失真、不像本人），预置音色才微调。
+  var VOICE_PITCH = {
+    'female-shaonv': 2, 'female-tianmei': 2,
+    'Chinese (Mandarin)_Soft_Girl': 2, 'female-yujie': 1
+  };
+  var ttsCfg = { key: '', group: '', voice: 'whale_jelpeita_01', pitch: 0, adminKey: '' };
+  try { Object.assign(ttsCfg, JSON.parse(localStorage.getItem('whale.ttscfg') || '{}')); } catch (e) {}
+  function pushTtsCfg() {
+    try { Android.setTtsCloudConfig(JSON.stringify(ttsCfg)); } catch (e) {}
+  }
+  pushTtsCfg();
+
+  var ttsMask = document.getElementById('tts-mask');
+  var mmKey = document.getElementById('mm-key');
+  var mmGroup = document.getElementById('mm-group');
+  var mmVoice = document.getElementById('mm-voice');
+  var mmCustom = document.getElementById('mm-custom');
+  var mmAdmin = document.getElementById('mm-admin');
+  var mmBalance = document.getElementById('mm-balance');
+
+  function loadMmBalance() {
+    if (!mmBalance) return;
+    if (!ttsCfg.key && !ttsCfg.adminKey) {
+      mmBalance.textContent = '余额：先填 API Key';
+      return;
+    }
+    mmBalance.textContent = '余额：查询中…';
+    fetch('/api/minimax/balance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: ttsCfg.key, group: ttsCfg.group, admin_key: ttsCfg.adminKey })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok && d.balance) {
+        mmBalance.textContent = '余额：' + d.balance + (d.currency ? (' ' + d.currency) : '');
+      } else if (d && d.need_admin) {
+        mmBalance.textContent = '余额：需 Admin Key（TTS Key 查不了钱包余额）';
+      } else if (d && d.message) {
+        mmBalance.textContent = '余额：' + d.message;
+      } else {
+        mmBalance.textContent = '余额：查询失败';
+      }
+    }).catch(function () {
+      mmBalance.textContent = '余额：网络或接口不可用';
+    });
+  }
+
+  document.getElementById('tts-cfg').addEventListener('click', function () {
+    mmKey.value = ttsCfg.key;
+    mmGroup.value = ttsCfg.group;
+    if (mmAdmin) mmAdmin.value = ttsCfg.adminKey || '';
+    var known = false;
+    for (var i = 0; i < mmVoice.options.length; i++) {
+      if (mmVoice.options[i].value === ttsCfg.voice) known = true;
+    }
+    if (known) { mmVoice.value = ttsCfg.voice; mmCustom.style.display = 'none'; mmCustom.value = ''; }
+    else { mmVoice.value = '__custom'; mmCustom.style.display = 'block'; mmCustom.value = ttsCfg.voice; }
+    ttsMask.classList.add('show');
+    loadMmBalance();
+  });
+  mmVoice.addEventListener('change', function () {
+    mmCustom.style.display = mmVoice.value === '__custom' ? 'block' : 'none';
+  });
+  document.getElementById('mm-close').addEventListener('click', function () {
+    ttsMask.classList.remove('show');
+  });
+  document.getElementById('mm-save').addEventListener('click', function () {
+    ttsCfg.key = mmKey.value.trim();
+    ttsCfg.group = mmGroup.value.trim();
+    ttsCfg.voice = mmVoice.value === '__custom' ? (mmCustom.value.trim() || 'whale_jelpeita_01') : mmVoice.value;
+    ttsCfg.pitch = VOICE_PITCH[ttsCfg.voice] !== undefined ? VOICE_PITCH[ttsCfg.voice] : 0;
+    ttsCfg.adminKey = mmAdmin ? mmAdmin.value.trim() : '';
+    try { localStorage.setItem('whale.ttscfg', JSON.stringify(ttsCfg)); } catch (e) {}
+    pushTtsCfg();
+    ttsMask.classList.remove('show');
+    loadMmBalance();
+  });
+  var mmBalanceRefresh = document.getElementById('mm-balance-refresh');
+  if (mmBalanceRefresh) mmBalanceRefresh.addEventListener('click', function () {
+    ttsCfg.adminKey = mmAdmin ? mmAdmin.value.trim() : ttsCfg.adminKey;
+    loadMmBalance();
+  });
+  document.getElementById('mm-test').addEventListener('click', function () {
+    document.getElementById('mm-save').click();
+    try {
+      if (!Android.hasCloudTts()) { bubble.textContent = '先填 Key 和 Group ID 再试听哦'; bubble.classList.add('show'); return; }
+      Android.speakCloud('咕～主人，我是小鲸鱼呀。新的声音已经接好啦，以后都用这个声音陪你。', 'happy');
+    } catch (e) {}
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) avatar.pause(); else avatar.resume();
+  });
+
+  function chatlog() {
+    try { return JSON.parse(localStorage.getItem('whale.chatlog') || '[]'); } catch (e) { return []; }
+  }
+  function pushLog(role, content) {
+    var log = chatlog();
+    log.push({ role: role, content: String(content).slice(0, 120) });
+    if (log.length > 50) log = log.slice(log.length - 50);
+    try { localStorage.setItem('whale.chatlog', JSON.stringify(log)); } catch (e) {}
+  }
+
+  /* ---------- 直播评论流 + 落库：每条互动都存，刷新后还在 ---------- */
+  var NO_SAVE = { '你来看我啦咕～': 1 };
+  function addStream(role, text, persist) {
+    var t = String(text || '').trim();
+    if (!t) return;
+    if (role === 'her') { if (t === lastHerLine) return; lastHerLine = t; }
+    else { if (t === lastMeLine) return; lastMeLine = t; }
+    var show = /^\[表情包/.test(t) ? '［表情包］' : t;
+    var el = document.createElement('div');
+    el.className = 'st' + (role === 'me' ? ' me' : '');
+    el.textContent = show;
+    streamEl.appendChild(el);
+    var cap = callActive ? 3 : 6;
+    while (streamEl.children.length > cap) streamEl.removeChild(streamEl.firstChild);
+    if (persist === false || NO_SAVE[t]) return;
+    fetch('/api/whale/say', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: role === 'me' ? 'me' : 'her', text: t.slice(0, 200) })
+    }).catch(function () {});
+  }
+
+  function loadStream() {
+    fetch('/api/whale/history?limit=40', { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var list = (d && d.messages) || [];
+        streamEl.innerHTML = '';
+        list.slice(-6).forEach(function (m) { addStream(m.role, m.content, false); });
+        streamList.innerHTML = '';
+        list.forEach(function (m) {
+          var el = document.createElement('div');
+          el.className = 'sl' + (m.role === 'me' ? ' me' : '');
+          var b = document.createElement('b');
+          b.textContent = m.role === 'me' ? '你' : '小鲸鱼';
+          el.appendChild(b);
+          el.appendChild(document.createTextNode(
+            String(m.content || '').replace(/^\[表情包[:：](.+)\]$/, '［表情包］')));
+          streamList.appendChild(el);
+        });
+        streamList.scrollTop = streamList.scrollHeight;
+      }).catch(function () {});
+  }
+
+  document.getElementById('logBtn').onclick = function () {
+    streamSheet.classList.add('on');
+    loadStream();
+  };
+  document.getElementById('streamClose').onclick = function () { streamSheet.classList.remove('on'); };
+
+  /* ---------- 主动找话：只在本页用气泡显示，和系统通知互不冲突 ---------- */
+  var proCursor = null;
+  function showProactive(text) {
+    if (callActive || Date.now() < callQuietUntil) return;
+    var t = String(text || '').trim();
+    if (!t) return;
+    bubble.textContent = t;
+    bubble.classList.add('show');
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(function () { bubble.classList.remove('show'); },
+      Math.min(8000, 2600 + t.length * 140));
+    addStream('her', t, false);
+    playByText(t);
+  }
+  function pollProactive() {
+    var since = proCursor == null ? 0 : proCursor;
+    fetch('/api/proactive?since=' + since, { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d || !d.ok) return;
+        var items = d.items || [];
+        if (proCursor != null && !document.hidden) {
+          items.forEach(function (it) { showProactive(it.text); });
+        }
+        proCursor = Number(d.last || proCursor || 0);
+      })
+      .catch(function () {})
+      .then(function () { setTimeout(pollProactive, 15000); });
+  }
+  setTimeout(pollProactive, 2500);
+
+  /* ---------- 打字让她做动作（零成本，不走 API） ---------- */
+  var ACTION_RULES = [
+    { re: /伸懒腰|伸个懒腰|伸展|伸一下/, pose: 'stretch', g: 'stretch', dur: 3.0 },
+    { re: /捂嘴|捂嘴巴|偷笑/, g: 'coverMouth', dur: 2.0 },
+    { re: /招手|挥手|打招呼/, g: 'wave', dur: 2.4 },
+    { re: /点头|点点头/, g: 'nod', dur: 1.3 },
+    { re: /摇头|摇摇头/, g: 'shake', dur: 1.4 },
+    { re: /蹦|跳一下|跳一跳|跳跳/, g: 'hop', dur: 1.1 },
+    { re: /转圈|转身/, pose: 'turn' },
+    { re: /生气|凶我|发火/, pose: 'angry', g: 'shake', dur: 1.4 },
+    { re: /害羞|脸红/, g: 'coverFace', also: 'earDrop', dur: 3.0 },
+    { re: /摇尾巴|甩尾巴|尾巴/, g: 'tailWag', dur: 2.6 },
+    { re: /歪头|歪歪头|脑袋歪/, g: 'tilt', dur: 2.0 },
+    { re: /打哈欠|哈欠|好困|困了/, g: 'yawn', also: 'earDrop', dur: 2.6 },
+    { re: /比心|比个心|爱心/, g: 'heart', dur: 2.4 }
+  ];
+  function playByText(text) {
+    for (var i = 0; i < ACTION_RULES.length; i++) {
+      var r = ACTION_RULES[i];
+      if (!r.re.test(text)) continue;
+      if (r.pose && avatar.setPose) avatar.setPose(r.pose);
+      if (r.g && avatar.playGesture) avatar.playGesture(r.g, r.dur || 2.4);
+      if (r.also && avatar.playGesture) avatar.playGesture(r.also, 2.4);
+      return true;
+    }
+    return false;
+  }
+
+  function send() {
+    var text = msg.value.trim();
+    if (!text) return;
+    msg.value = '';
+    if (callActive) {
+      clearTimeout(listenResumeTimer);
+      try { Android.stopWorldListening(); } catch (e) {}
+      listenResumeTimer = setTimeout(startListeningIfQuiet, 6000);
+    }
+    sendBtn.disabled = true;
+    setTimeout(function () { sendBtn.disabled = false; }, 600);
+    pushLog('user', text);
+    addStream('me', text);
+    playByText(text);
+    if (!smartOn) {
+      avatar.sendUserInput(text);
+      return;
+    }
+    // 智能模式：走 API（只此页面使用），失败自动回退本地规则。
+    fetch('/api/whale/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, history: chatlog().slice(-8), session: callActive ? callSession : '' })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok && d.text) {
+        pushLog('assistant', d.text);
+        soul.injectReply(d.text, d.valence || 0.2, d.arousal || 0.2);
+      } else {
+        avatar.sendUserInput(text); // 无 key / 超时等 → 本地兜底
+      }
+    }).catch(function () {
+      avatar.sendUserInput(text);
+    });
+  }
+  sendBtn.addEventListener('click', send);
+  msg.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+
+  /* ---------- 视频通话：2D 页里的通话层 ---------- */
+  var callActive = false, callSession = '', callFront = true, callPaused = false;
+  var callTimer = null, callStartedAt = 0, smartBeforeCall = null;
+  var herSpeakUntil = 0, listenResumeTimer = null, lastHeardText = '', lastHeardAt = 0;
+  var currentPlace = '', callQuietUntil = 0;
+  var callbar = document.getElementById('callbar');
+  var callTop = document.getElementById('callTop');
+  var callShade = document.getElementById('callShade');
+  var callTime = document.getElementById('callTime');
+  var callStateText = document.getElementById('callStateText');
+  var inputbar = document.querySelector('.inputbar');
+  var callBtn = document.getElementById('callBtn');
+  var callEyeBtn = document.getElementById('callEye');
+  var callLensBtn = document.getElementById('callLens');
+  var callLookBtn = document.getElementById('callLook');
+  var callEndBtn = document.getElementById('callEnd');
+  var titleEl = document.querySelector('.topbar .title');
+  var rightGroup = document.querySelector('.topbar .right-group');
+
+  function callStateBase() {
+    return '视频通话中' + (currentPlace ? (' · ' + currentPlace) : '');
+  }
+
+  /* ---------- 电脑版视频通话：本页抓摄像头，帧送 /api/world/frame ---------- */
+  function deskMode() {
+    try { return !!(window.Android && Android.isDesktop && Android.isDesktop()); } catch (e) { return false; }
+  }
+  var deskStream = null, deskTimer = null, deskCanvas = null;
+  function deskVideo() { return document.getElementById('callSelfVideo'); }
+  function deskStopCamera() {
+    clearInterval(deskTimer);
+    deskTimer = null;
+    if (deskStream) {
+      try { deskStream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+    }
+    deskStream = null;
+    var v = deskVideo();
+    if (v) v.srcObject = null;
+    var box = document.getElementById('callSelf');
+    if (box) box.classList.remove('on');
+  }
+  function deskStartCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      callBubble('这台电脑的窗口没有摄像头权限');
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: false })
+      .then(function (stream) {
+        deskStream = stream;
+        var v = deskVideo();
+        if (v) { v.srcObject = stream; v.play().catch(function () {}); }
+        var box = document.getElementById('callSelf');
+        if (box) box.classList.add('on');
+        clearInterval(deskTimer);
+        deskTimer = setInterval(function () { deskSendFrame(false); }, 5000);
+        setTimeout(function () { deskSendFrame(true); }, 900);
+      })
+      .catch(function (err) {
+        callBubble('摄像头打不开：' + ((err && err.message) ? err.message : '权限被拒绝'));
+      });
+  }
+  function deskCapture() {
+    var v = deskVideo();
+    if (!v || !v.videoWidth) return '';
+    if (!deskCanvas) deskCanvas = document.createElement('canvas');
+    var w = 640, h = Math.round(v.videoHeight * 640 / v.videoWidth);
+    deskCanvas.width = w;
+    deskCanvas.height = h;
+    try { deskCanvas.getContext('2d').drawImage(v, 0, 0, w, h); } catch (e) { return ''; }
+    var data = deskCanvas.toDataURL('image/jpeg', 0.72);
+    return data.indexOf(',') >= 0 ? data.split(',')[1] : '';
+  }
+  function deskSendFrame(force) {
+    if (!callActive || !callSession) return;
+    if (callPaused && !force) return;
+    var img = deskCapture();
+    if (!img) return;
+    fetch('/api/world/frame', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: callSession, image: img, force: !!force })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok) return;
+      if (d.place) {
+        currentPlace = String(d.place);
+        if (callStateText) callStateText.textContent = callStateBase();
+      }
+      if (d.text) {
+        pushLog('assistant', d.text);
+        soul.injectReply(d.text, d.valence || 0.2, d.arousal || 0.2);
+      }
+    }).catch(function () {});
+  }
+
+  function startListeningIfQuiet() {
+    if (!callActive || callPaused) return;
+    var wait = herSpeakUntil - Date.now();
+    if (wait > 0) {
+      clearTimeout(listenResumeTimer);
+      listenResumeTimer = setTimeout(startListeningIfQuiet, wait + 280);
+      return;
+    }
+    try { Android.startWorldListening(); } catch (e) {}
+  }
+
+  function callBubble(text) {
+    if (!text) return;
+    bubble.textContent = text;
+    bubble.classList.add('show');
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(function () { bubble.classList.remove('show'); }, 3200);
+  }
+
+  function updateCallTime() {
+    if (!callActive) return;
+    var s = Math.max(0, Math.floor((Date.now() - callStartedAt) / 1000));
+    var m = Math.floor(s / 60), r = s % 60;
+    callTime.textContent = (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+  }
+
+  function setCallUi(on) {
+    callbar.classList.toggle('on', !!on);
+    if (callTop) callTop.classList.toggle('on', !!on);
+    if (callShade) callShade.classList.toggle('on', !!on);
+    /* 电脑版没有原生摄像头叠加层，输入栏留着方便打字 */
+    inputbar.classList.toggle('hide', !!on && !deskMode());
+    if (callLensBtn) callLensBtn.style.display = deskMode() ? 'none' : '';
+    if (titleEl) titleEl.style.display = on ? 'none' : '';
+    if (rightGroup) rightGroup.style.display = on ? 'none' : '';
+    streamEl.style.display = on ? 'none' : '';
+    bubble.classList.toggle('call-sub', !!on);
+    callEyeBtn.classList.remove('on');
+    callEyeBtn.querySelector('span').textContent = '闭眼';
+    callLensBtn.classList.remove('on');
+    callLensBtn.querySelector('span').textContent = '反转';
+    if (!on) currentPlace = '';
+    if (callStateText) callStateText.textContent = callStateBase();
+    if (!on) {
+      callTime.textContent = '00:00';
+      bubble.classList.remove('show', 'call-sub');
+    }
+  }
+
+  function startCall() {
+    if (callActive) return;
+    var desk = deskMode();
+    if (!desk && (!window.Android || !Android.startWorldCall)) {
+      callBubble('这台设备还没有接入视频通话');
+      return;
+    }
+    callBubble('正在接通…');
+    fetch('/api/world/start', { method: 'POST' }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.ok || !d.id) {
+        callBubble('通话没接通，稍后再试');
+        return;
+      }
+      callActive = true;
+      callSession = d.id;
+      callFront = true;
+      callPaused = false;
+      callStartedAt = Date.now();
+      if (!smartOn) {
+        smartBeforeCall = false;
+        smartOn = true;
+        fetch('/api/whale/brain/start', { method: 'POST' }).catch(function () {});
+      }
+      setCallUi(true);
+      streamEl.innerHTML = '';
+      updateCallTime();
+      clearInterval(callTimer);
+      callTimer = setInterval(updateCallTime, 1000);
+      if (desk) {
+        deskStartCamera();
+      } else {
+        try { Android.startWorldCall(d.id); } catch (e) {}
+      }
+      soul.injectReply('接通啦，让我看看你。', 0.35, 0.25);
+    }).catch(function () { callBubble('通话没接通，稍后再试'); });
+  }
+
+  function endCall(silent) {
+    if (!callActive) return;
+    var sid = callSession;
+    deskStopCamera();
+    callActive = false;
+    callQuietUntil = Date.now() + 6500;
+    callSession = '';
+    callPaused = false;
+    clearTimeout(listenResumeTimer);
+    try { Android.stopWorldListening(); } catch (e) {}
+    if (avatar && avatar.setEyesClosed) {
+      try { avatar.setEyesClosed(false); } catch (e) {}
+    }
+    try { Android.endWorldCall(); } catch (e) {}
+    clearInterval(callTimer);
+    callTimer = null;
+    setCallUi(false);
+    if (avatar && avatar.clearLook) {
+      try { avatar.clearLook(); } catch (e) {}
+    }
+    if (smartBeforeCall === false) {
+      smartOn = false;
+      smartBeforeCall = null;
+    }
+    if (!sid) return;
+    fetch('/api/world/stop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: sid })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.farewell) {
+        pushLog('assistant', d.farewell);
+        soul.injectReply(d.farewell, 0.2, 0.15);
+      } else if (!silent) {
+        callBubble('通话结束。');
+      }
+      if (d && d.m16 && d.m16.total) {
+        var rate = Math.round((d.m16.hit_rate || 0) * 100);
+        setTimeout(function () {
+          callBubble('视频通话累计看准 ' + d.m16.hits + '/' + d.m16.total + '（' + rate + '%）');
+        }, 1800);
+      }
+    }).catch(function () { if (!silent) callBubble('通话结束。'); });
+  }
+
+  function toggleEye() {
+    if (!callActive) return;
+    callPaused = !callPaused;
+    try { callPaused ? Android.pauseWorldCall() : Android.resumeWorldCall(); } catch (e) {}
+    callEyeBtn.querySelector('span').textContent = callPaused ? '睁眼' : '闭眼';
+    callEyeBtn.classList.toggle('on', callPaused);
+    if (callStateText) callStateText.textContent = callPaused ? '她没在看' : callStateBase();
+    if (avatar && avatar.setEyesClosed) {
+      try { avatar.setEyesClosed(callPaused); } catch (e) {}
+    }
+    if (callPaused) {
+      clearTimeout(listenResumeTimer);
+      try { Android.stopWorldListening(); } catch (e) {}
+      if (avatar && avatar.clearLook) {
+        try { avatar.clearLook(); } catch (e) {}
+      }
+    } else {
+      startListeningIfQuiet();
+    }
+  }
+
+  function toggleLens() {
+    if (!callActive) return;
+    /* 电脑版一般只有一路摄像头，反转没有意义 */
+    if (deskMode()) return;
+    callFront = !callFront;
+    try { Android.setWorldCamera(callFront ? 'front' : 'back'); } catch (e) {}
+    callLensBtn.classList.toggle('on', !callFront);
+    if (!callFront && avatar && avatar.clearLook) {
+      try { avatar.clearLook(); } catch (e) {}
+    }
+  }
+
+  function lookNow() {
+    if (!callActive) return;
+    if (deskMode()) {
+      deskSendFrame(true);
+      callBubble('她认真看了一眼。');
+      return;
+    }
+    try { Android.worldLookNow(); } catch (e) {}
+    callBubble('她认真看了一眼。');
+  }
+
+  callBtn.onclick = startCall;
+  callEndBtn.onclick = function () { endCall(false); };
+  callEyeBtn.onclick = toggleEye;
+  /* 离开页面时务必关摄像头，避免指示灯常亮 */
+  window.addEventListener('pagehide', function () { deskStopCamera(); });
+  callLensBtn.onclick = toggleLens;
+  callLookBtn.onclick = lookNow;
+
+  /* 视线跟随鼠标：桌面端每帧最多算一次；视频通话时让位给人脸跟踪 */
+  (function bindGaze(){
+    var raf = 0, px = 0, py = 0, inside = false;
+    function aim(){
+      if (!avatar || !avatar.lookAt || callActive) return;
+      var stage = document.getElementById('stage');
+      if (!stage) return;
+      var r = stage.getBoundingClientRect();
+      var nx = ((px - r.left) / Math.max(1, r.width)) * 2 - 1;
+      var ny = ((py - r.top) / Math.max(1, r.height)) * 2 - 1;
+      avatar.lookAt(
+        Math.max(-1, Math.min(1, nx)),
+        Math.max(-1, Math.min(1, ny)),
+        0.75
+      );
+    }
+    window.addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'touch') return;
+      px = e.clientX;
+      py = e.clientY;
+      inside = true;
+      if (raf) return;
+      raf = requestAnimationFrame(function () { raf = 0; aim(); });
+    }, {passive: true});
+    /* 鼠标停住时也保持注视；lookAt 的 hold 只有 0.2s，所以定时补一拍 */
+    setInterval(function () { if (inside) aim(); }, 180);
+    document.addEventListener('mouseleave', function () {
+      inside = false;
+      if (avatar && avatar.clearLook && !callActive) {
+        try { avatar.clearLook(); } catch (e) {}
+      }
+    });
+  })();
+
+  /* ESC：先关浮层/音量面板/通话，再返回上一页 */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' && e.keyCode !== 27) return;
+    var mask = document.getElementById('tts-mask');
+    if (mask && mask.classList.contains('show')) {
+      e.preventDefault();
+      mask.classList.remove('show');
+      return;
+    }
+    var sheet = document.getElementById('streamSheet');
+    if (sheet && sheet.classList.contains('on')) {
+      e.preventDefault();
+      sheet.classList.remove('on');
+      return;
+    }
+    if (callActive) {
+      e.preventDefault();
+      try { callEndBtn.click(); } catch (err) {}
+      return;
+    }
+    e.preventDefault();
+    var back = document.querySelector('.back');
+    if (back) back.click();
+  }, true);
+
+  window.__onVoiceResult = function (r) {
+    if (!callActive || callPaused) return;
+    var text = r && r.ok ? String(r.text || '').trim() : '';
+    if (!text) return;
+    var now = Date.now();
+    if (text === lastHeardText && now - lastHeardAt < 2500) return;
+    lastHeardText = text;
+    lastHeardAt = now;
+    msg.value = text;
+    send();
+  };
+
+  window.__worldCall = {
+    onReady: function () {
+      startListeningIfQuiet();
+    },
+    onFace: function (p) {
+      if (!callActive || !callFront || callPaused) return;
+      if (!avatar) return;
+      if (p && p.visible && avatar.lookAt) {
+        var x = Math.max(-1, Math.min(1, Number(p.x) || 0));
+        var y = Math.max(-1, Math.min(1, Number(p.y) || 0));
+        avatar.lookAt(x, y, 0.75);
+      } else if (avatar.clearLook) {
+        try { avatar.clearLook(); } catch (e) {}
+      }
+    },
+    onScene: function (p) {
+      if (!callActive || !p) return;
+      if (p.place) {
+        currentPlace = String(p.place);
+        if (!callPaused && callStateText) callStateText.textContent = callStateBase();
+      }
+      if (p.ok && p.text) {
+        pushLog('assistant', p.text);
+        soul.injectReply(p.text, p.valence || 0.2, p.arousal || 0.3);
+        if (p.gesture && avatar && avatar.playGesture) {
+          try { avatar.playGesture(p.gesture, 2.2); } catch (e) {}
+        }
+      }
+    },
+    onFocus: function (p) {
+      if (!callActive) return;
+      callBubble('她看向你点的地方了。');
+    },
+    onError: function (p) {
+      var code = p && p.code;
+      callBubble(code === 'camera_denied' ? '没有相机权限，先用文字聊吧' : '摄像头暂时打不开，先用文字聊吧');
+      endCall(true);
+    },
+    onEnded: function () {}
+  };
+
+  window.__onResume = function () {
+    if (callActive && !callPaused) startListeningIfQuiet();
+  };
+
+  window.__whaleBack = function () {
+    if (callActive) {
+      endCall(false);
+      return;
+    }
+    // 回到主页的模块选择卡带，而不是浏览器历史
+    location.href = '/index.html?home=1';
+  };
+
+  window.addEventListener('pagehide', function () {
+    if (!callActive) return;
+    var sid = callSession;
+    callActive = false;
+    callSession = '';
+    clearTimeout(listenResumeTimer);
+    try { Android.stopWorldListening(); } catch (e) {}
+    try { Android.endWorldCall(); } catch (e) {}
+    clearInterval(callTimer);
+    if (sid) {
+      try {
+        var blob = new Blob([JSON.stringify({ session: sid })], { type: 'application/json' });
+        if (navigator.sendBeacon) navigator.sendBeacon('/api/world/stop', blob);
+      } catch (e) {}
+    }
+  });
+
+  setTimeout(function () { soul.injectReply('你来看我啦咕～', 0.3, 0.2); }, 1200);
+
+  /* ---------- 首次进入：预合成固定台词，之后不再花 MiniMax 额度 ---------- */
+  function precacheVoices() {
+    try {
+      if (!voiceOn) return;
+      if (localStorage.getItem('whale.pre') === '1') return;
+      if (!(window.Android && Android.precacheCloud && Android.hasCloudTts && Android.hasCloudTts())) return;
+      var lines = [], seen = {};
+      function push(l) { if (!l || seen[l]) return; seen[l] = 1; lines.push(l); }
+      Object.keys(REACT).forEach(function (z) {
+        REACT[z].forEach(function (x) { push(x[0]); });
+      });
+      IDLE_LINES.forEach(function (x) { push(x[0]); });
+      push('太、太近了啦……不过可以再摸一下。');
+      push('你再戳，我真的要生气了咕！');
+      push('你还在吗……我一个人有点安静。');
+      Android.precacheCloud(JSON.stringify(lines.slice(0, 16)));
+      localStorage.setItem('whale.pre', '1');
+    } catch (e) {}
+  }
+  setTimeout(precacheVoices, 5000);
+  /* 分层返回：先关页内浮层，再回上一页 */
+  window.__androidBack = function () {
+    var sheet = document.getElementById('streamSheet');
+    if (sheet && sheet.classList.contains('on')) { sheet.classList.remove('on'); return true; }
+    var mask = document.getElementById('tts-mask');
+    if (mask && mask.classList.contains('show')) { mask.classList.remove('show'); return true; }
+    // 退出小鲸鱼页：回到主页并打开模块选择卡带
+    location.href = '/index.html?home=1';
+    return true;
+  };
+  setTimeout(loadStream, 1600);
+})();
+</script>
+</body>
+</html>

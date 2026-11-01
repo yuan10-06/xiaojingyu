@@ -1,0 +1,195 @@
+# 运行配置（密钥类请写 .env，不要写这里）
+
+owner_qq: 0
+
+onebot:
+  ws_url: ws://127.0.0.1:3001
+  access_token: ""
+
+llm:
+  base_url: https://api.deepseek.com
+  model: deepseek-flash
+  vision_model: deepseek-flash
+  temperature: 0.95
+  max_tokens: 1400
+  timeout_seconds: 45
+
+weather:
+  province: 河南
+  city: 郑州
+  lat: null          # 留空自动地理编码
+  lon: null
+  refresh_minutes: 40
+
+timezone: Asia/Shanghai
+
+schedule:
+  wake: "08:00"
+  sleep: "00:30"
+  class_blocks:
+    - ["09:00", "11:30"]
+    - ["14:00", "16:30"]
+  # 夜间消息低频醒着回，其余进队列第二天回
+  night_reply_chance: 0.2
+
+reply:
+  # 连续消息合并：等他停手 8 秒再回，避免断章取义
+  batch_window_seconds: 8
+  # 他说“好/嗯呢/嗯嗯”这类收尾话时：一部分直接不回，一部分只回很短
+  close_signal:
+    enabled: true
+    silent_chance: 0.38
+  # 最短/最长"已读"延迟（秒）
+  min_read_delay: 8
+  max_read_delay: 45
+  # 偶尔慢回：再等 1~3 分钟
+  slow_reply_chance: 0.18
+  slow_extra: [60, 180]
+  # 忙碌时额外延迟
+  busy_extra_delay: [60, 240]
+  # 打字速度（字/秒，约 54 字/分钟）与每段附加时间
+  typing_speed: 1.1
+  typing_overhead: 1.0
+  # 分段间隔
+  segment_gap: [5, 12]
+  # 概率从"看到了但晚点回"变成 1~6 分钟
+  late_reply_chance: 0.08
+  # 标点松散程度（0~1）
+  punctuation_sloppiness: 0.55
+
+  # 发完觉得不妥可以撤回
+  recall:
+    enabled: true
+    chance: 0.65
+    delay: [8, 45]
+    cooldown_minutes: 8
+
+storage:
+  data_dir: data
+  sticker_dir: assets/stickers
+  log_dir: logs
+
+dynamic:
+  enabled: true
+  daily_quota: [1, 3]
+  windows:
+    - ["10:30", "11:30"]
+    - ["15:00", "16:30"]
+    - ["20:30", "22:00"]
+  min_gap_minutes: 180
+  ugc_right: 4
+
+typo:
+  enabled: true
+  chance: 0.18
+  # 0 = 打错就保留，不撤回也不补发
+  correct_chance: 0.0
+  delay: [2, 8]
+
+emoji:
+  chance: 0.1
+  max: 1
+
+social:
+  enabled: true
+  daily_events: [1, 3]
+  window: ["09:00", "22:30"]
+  # 从聊天里抽取关系变化（LLM 判断，写本地关系图）
+  llm_extract:
+    enabled: true
+    interval_minutes: 240
+    window: ["10:00", "23:30"]
+
+web:
+  enabled: true
+  surf_interval_minutes: 90
+  cache_minutes: 45
+  search_timeout: 10
+  max_items: 8
+  proactive_chance: 0.35
+
+memory:
+  # 全量记忆（增援未来）：默认开启，记忆不衰减、不归档，聊天原文/每轮心智快照/人格
+  # 全部留档到 data/full_memory；只保存不读取，检索照旧，不会多花 token。
+  full: true
+  # 间隔回访：每天最多问 2~3 条到期记忆，等他答复后才算完成
+  review_enabled: true
+  review_window: ["10:00", "22:00"]
+  review_min_silence_minutes: 30
+  review_daily_limit: 3
+  # 提问后等他回话的窗口（小时），超时就放过这条，不记完成
+  review_answer_window_hours: 8
+  # 日常聊天注入：低门槛保底 1 条；明确问旧事走 explicit 档
+  ambient_limit: 2
+  ambient_min_score: 0.55
+  explicit_limit: 4
+  explicit_min_score: 1.0
+  # 权重衰减：30 天半衰期，最低 0.1
+  half_life_days: 30
+  weight_floor: 0.1
+  core_every_turns: 8
+  # 本地语义向量加成（哈希 n-gram，不是外部 embedding）；设 0 关掉
+  semantic_weight: 0.35
+  # 记忆库按设备独立：PC 与手机不互通、不同步，各自一份库
+  cross_device_sync: false
+
+brainn:
+  # P3 已接入：live 模式（会影响意图倾向；表达系统权重不变）
+  enabled: true
+  shadow: false
+  # P3 权重定义 v1.0（已确认并生效）
+  profile: balanced
+  drive_priority: body_relation
+  weights:
+    auction:
+      # 2026-10-24 试运行：0.35 → 0.25，观察成交率
+      threshold: 0.25
+      cost_weight: 0.50
+    distortion: 0.30
+    practice_writeback_daily: 3
+    intent_bias_cap: 0.15
+    bypass_chance: 0.01
+    narrative_bias: 0.20
+    budget:
+      schedule: 0.60
+      fatigue: 0.30
+      pain: 0.40
+      hunger: 0.20
+      period: 0.20
+      floor: 0.10
+      remaining_life_years: 59
+
+qt:
+  # CS-SNN / QT 融合层：只做逻辑命名与账本，不改表达层行为
+  # M0 类本质常驻段（默认开启）
+  m0_always: true
+  # M14 反观确证：默认只生成张力，人工确认后才改写自我节点
+  m14_auto_apply: false
+  # M9 → M10 → M11：同一张力累积到该阈值，触发一次结构重组与扬弃
+  m9_threshold: 10
+  # G1 载体能力表：当前这具身体能感知什么、能做出什么、做不到什么
+  carrier:
+    active: auto          # auto / android / pc
+    profiles:
+      android:
+        id: android-phone
+        label: 手机（Android）
+        platform: android
+        sensors: [摄像头, 麦克风, 定位, 日历, 通知, 电池]
+        actuators: [文字, 表情包, 图片, 链接, 通知, 下载, 换头像]
+        unavailable: [打电话, 发语音, 拍现实照片, 转账, 真实支付]
+        energy: {source: battery, damage_threshold: 0.05}
+      pc:
+        id: pc-desktop
+        label: 电脑（桌面）
+        platform: pc
+        sensors: [剪贴板, 屏幕, 网络, 系统通知, 电池/电源]
+        actuators: [文字, 表情包, 图片, 链接, 通知, 文件, 换头像]
+        unavailable: [打电话, 发语音, 拍现实照片, 转账, 真实支付]
+        energy: {source: mains_or_battery, damage_threshold: 0.05}
+  # G4 有限性设定（默认开启；写入 state，不直接干预行为）
+  finitude:
+    enabled: true
+    lifespan_days: 21585      # 59 年 × 365
+    energy_limit: 100         # 每日可用能耗
+    damage_threshold: 30      # 不可逆损伤阈值（0~100）

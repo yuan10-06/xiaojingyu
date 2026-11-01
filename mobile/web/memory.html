@@ -1,0 +1,1731 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN" data-theme="whale">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#061426">
+<title>记忆与人格 · Brain-Truth</title>
+<style>
+  /* 与小鲸鱼 whale 主题保持一致的自包含样式 */
+  :root{
+    --bg:#061426; --bar:#081b30; --card:#0b2038; --card2:#112944;
+    --text:#eaf4ff; --muted:#8fb3d9; --line:#18314d; --accent:#4d6bfe;
+    --warn:#ffb347; --danger:#ff6b6b; --ok:#3ddc84;
+    --safe-top:0px; --safe-bottom:0px;
+  }
+  html[data-theme="sakura"]{
+    --bg:#fff0f4; --bar:#ffffff; --card:#ffffff; --card2:#fff5f8;
+    --text:#3b2130; --muted:#b58a9a; --line:#f2d6df; --accent:#ff6f9f;
+    --warn:#d98c00; --danger:#d9534f; --ok:#2fa36b;
+  }
+  html[data-theme="black"]{
+    --bg:#0f1114; --bar:#17191c; --card:#191b1e; --card2:#22252a;
+    --text:#e8e8e8; --muted:#8b9198; --line:#26282b; --accent:#3ddc84;
+    --warn:#ffb347; --danger:#ff6b6b; --ok:#3ddc84;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%}
+  body{
+    margin:0;background:
+      radial-gradient(circle at 88% -6%,rgba(77,107,254,.16),transparent 46%),
+      radial-gradient(circle at 4% 100%,rgba(77,107,254,.08),transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 24px);
+  }
+  html[data-theme="sakura"] body{
+    background:
+      radial-gradient(circle at 88% -6%,rgba(255,111,159,.16),transparent 46%),
+      radial-gradient(circle at 4% 100%,rgba(255,111,159,.08),transparent 40%),
+      var(--bg);
+  }
+  html[data-theme="black"] body{
+    background:
+      radial-gradient(circle at 88% -6%,rgba(61,220,132,.07),transparent 46%),
+      radial-gradient(circle at 4% 100%,rgba(61,220,132,.04),transparent 40%),
+      var(--bg);
+  }
+  a{color:inherit;text-decoration:none}
+
+  /* 顶栏 */
+  .topbar{
+    position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;
+    padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;
+    background:var(--bar);border-bottom:1px solid var(--line);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  }
+  html[data-theme="whale"] .topbar{background:rgba(8,27,48,.94)}
+  html[data-theme="sakura"] .topbar{background:rgba(255,255,255,.94)}
+  html[data-theme="black"] .topbar{background:rgba(23,25,28,.94)}
+  .back{
+    flex:0 0 auto;width:40px;height:40px;border-radius:50%;
+    border:1px solid var(--line);background:var(--card2);color:var(--muted);
+    font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;
+  }
+  .back:active{background:var(--card)}
+  .title{flex:1;min-width:0;font-size:17px;font-weight:600;letter-spacing:.3px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .btn{
+    min-height:40px;padding:0 13px;border-radius:10px;border:1px solid var(--line);
+    background:var(--card2);color:var(--muted);font-size:13px;font-family:inherit;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .btn:active{opacity:.75}
+  .btn.accent{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .btn:disabled{opacity:.45}
+  .btn.mini{min-height:40px;padding:0 12px;font-size:13px}
+  .btn[hidden]{display:none}
+
+  /* 下拉刷新 */
+  body{overscroll-behavior-y:none}
+  .pullWrap{height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:12px;letter-spacing:.5px}
+  .pullWrap span{transform:translateY(2px)}
+
+  .wrap{padding:12px 12px 0}
+
+  /* 视图标签 */
+  .tabs{display:flex;gap:8px;padding:10px 12px 6px;position:sticky;top:57px;z-index:15;
+    background:linear-gradient(180deg,var(--bg) 72%,rgba(6,20,38,0))}
+  html[data-theme="sakura"] .tabs{background:linear-gradient(180deg,var(--bg) 72%,rgba(255,240,244,0))}
+  html[data-theme="black"] .tabs{background:linear-gradient(180deg,var(--bg) 72%,rgba(15,17,20,0))}
+  .tab{flex:1;min-height:38px;border-radius:10px;border:1px solid var(--line);
+    background:var(--card);color:var(--muted);font:13.5px/1 inherit;font-family:inherit}
+  .tab.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  /* 内嵌到设置页时用父页面顶栏，自己的顶栏收起来 */
+  html.embed .topbar{display:none}
+  html.embed .tabs{top:0}
+
+  /* 生活与关系网 */
+  .vhead{display:flex;flex-direction:column;gap:2px;padding:4px 2px 10px}
+  .vhead b{font-size:15px;color:var(--text)}
+  .vhead small{font-size:12px;color:var(--muted)}
+  .vcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin-bottom:10px}
+  .vcard h4{margin:0 0 8px;font-size:13.5px;color:var(--text);font-weight:600}
+  .vcard .big{font-size:17px;font-weight:700;margin:2px 0;color:var(--text)}
+  .kvrow{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);padding:2px 0}
+  .kvrow b{color:var(--text);font-weight:500;text-align:right;word-break:break-word}
+  .vbar{margin:6px 0}
+  .vbar .bh{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+  .vbar .bt{height:6px;border-radius:3px;background:var(--card2);overflow:hidden;margin-top:3px}
+  .vbar .bt i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+  .vbar .bt i.warn{background:var(--warn)}
+  .vbar .bt i.bad{background:var(--danger)}
+  .vfeed{font-size:12.5px;padding:7px 0;border-bottom:1px dashed var(--line);line-height:1.55;
+    color:var(--text);word-break:break-word}
+  .vfeed:last-child{border-bottom:0}
+  .vfeed .vt{color:var(--muted);font-size:11px}
+  .vgraph{background:var(--card2);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+  .vgraph svg{width:100%;height:auto;display:block}
+  .vdetail{font-size:12.5px;color:var(--muted);line-height:1.7}
+  .vdetail b{color:var(--text)}
+  .vnote{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px}
+  .vempty{font-size:12.5px;color:var(--muted);padding:6px 0}
+  .vtruth{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:12.5px;color:var(--muted);margin-top:8px}
+  .vtruth input{width:18px;height:18px}
+  .vgraph circle[data-vnode]{cursor:pointer}
+
+  /* 状态提示 */
+  .notice{
+    display:flex;gap:10px;align-items:flex-start;
+    background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:12px;padding:12px 13px;margin-bottom:12px;font-size:13.5px;line-height:1.65;
+    color:var(--muted);
+  }
+  .notice strong{display:block;color:var(--text);font-size:14px;font-weight:600;margin-bottom:2px}
+  .notice.warn{border-left-color:var(--warn)}
+  .notice.warn strong{color:var(--warn)}
+  .notice[hidden]{display:none}
+
+  /* 统计条 */
+  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px;margin-bottom:10px}
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:9px 10px 8px;text-align:center;
+  }
+  .stat b{display:block;font-size:19px;font-weight:700;line-height:1.2;color:var(--text);
+    font-variant-numeric:tabular-nums}
+  .stat span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+  .stats[hidden]{display:none}
+  .layerbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .chip{
+    font-size:11.5px;color:var(--muted);background:var(--card2);border:1px solid var(--line);
+    border-radius:999px;padding:4px 9px;line-height:1.5;
+  }
+  .chip i{font-style:normal;color:var(--text);margin-left:4px;font-variant-numeric:tabular-nums}
+  .layerbar[hidden]{display:none}
+
+  /* 搜索与筛选 */
+  .filters{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+  .search{
+    width:100%;height:44px;border-radius:12px;border:1px solid var(--line);
+    background:var(--card);color:var(--text);font-size:14px;font-family:inherit;
+    padding:0 13px;outline:none;
+  }
+  .search::placeholder{color:var(--muted)}
+  .search:focus{border-color:var(--accent)}
+  .filterrow{display:flex;gap:8px}
+  select{
+    flex:1;min-width:0;height:42px;border-radius:12px;border:1px solid var(--line);
+    background:var(--card);color:var(--muted);font-size:13.5px;font-family:inherit;
+    padding:0 9px;outline:none;appearance:none;-webkit-appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
+      linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+    background-position:calc(100% - 15px) 18px,calc(100% - 10px) 18px;
+    background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+  }
+
+  .listhead{display:flex;align-items:center;justify-content:space-between;
+    font-size:12px;color:var(--muted);padding:2px 2px 8px}
+  .listhead .total{font-variant-numeric:tabular-nums}
+
+  /* 记忆卡片 */
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:12px 13px 10px;margin-bottom:10px;
+  }
+  .cardTop{display:flex;align-items:flex-start;gap:8px}
+  .cardTop h3{margin:0;flex:1;min-width:0;font-size:14.5px;font-weight:600;line-height:1.5;
+    color:var(--text);word-break:break-word}
+  .badge{
+    flex:0 0 auto;font-size:11px;padding:2px 8px;border-radius:999px;line-height:1.7;
+    background:var(--card2);color:var(--muted);border:1px solid var(--line);
+  }
+  .badge.active{color:var(--accent);border-color:var(--accent);background:var(--card2)}
+  .badge.revised{color:var(--warn);border-color:rgba(255,179,71,.45);background:rgba(255,179,71,.12)}
+  .badge.archived{color:var(--muted);border-color:var(--line);background:var(--card2)}
+  .badge.done{color:var(--ok);border-color:var(--ok);background:var(--card2)}
+  .badge.rejected{color:var(--muted);border-color:var(--line);background:var(--card2)}
+
+  .value{margin:7px 0 0;font-size:13.5px;line-height:1.68;color:var(--text);
+    white-space:pre-wrap;word-break:break-word}
+  .value.empty{color:var(--muted)}
+
+  .weightline{display:flex;align-items:center;gap:8px;margin-top:9px}
+  .wbar{flex:1;height:5px;border-radius:3px;background:var(--card2);overflow:hidden}
+  .wbar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+  .wnum{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;flex:0 0 auto}
+
+  .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+  .meta span{font-size:11.5px;color:var(--muted);background:var(--card2);
+    border:1px solid var(--line);border-radius:8px;padding:3px 7px;line-height:1.5}
+  .times{margin-top:8px;font-size:11.5px;color:var(--muted);line-height:1.6}
+
+  .actions{display:flex;gap:8px;margin-top:10px}
+  .actions button{
+    flex:1;min-height:40px;border-radius:10px;border:1px solid var(--line);
+    background:var(--card2);color:var(--text);font-size:13px;font-family:inherit;
+  }
+  .actions button:active{opacity:.75}
+  .actions .del{color:var(--danger);border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.08)}
+
+  /* 行内编辑 */
+  .editbox{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .editbox[hidden]{display:none}
+  .editbox textarea{
+    width:100%;min-height:84px;resize:vertical;border-radius:10px;border:1px solid var(--line);
+    background:var(--card2);color:var(--text);font:13.5px/1.6 inherit;padding:9px 10px;outline:none;
+  }
+  .editbox textarea:focus{border-color:rgba(77,107,254,.7)}
+  .wrow{display:flex;align-items:center;gap:10px;margin-top:8px}
+  .wrow label{font-size:12px;color:var(--muted);flex:0 0 auto}
+  .wrow input[type=range]{
+    flex:1;height:40px;background:transparent;-webkit-appearance:none;appearance:none;margin:0;
+  }
+  .wrow input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:var(--line)}
+  .wrow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:22px;height:22px;margin-top:-9px;border-radius:50%;background:var(--accent);border:2px solid #dfe6ff}
+  .wrow .wnum{font-size:12px;color:var(--text);min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
+  .ebtns{display:flex;gap:8px;margin-top:8px}
+  .ebtns button{flex:1;min-height:40px;border-radius:10px;border:1px solid var(--line);
+    background:var(--card);color:var(--muted);font-size:13px;font-family:inherit}
+  .ebtns .save{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+
+  /* 关联列表 */
+  .linksbox{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .linksbox[hidden]{display:none}
+  .linksbox .lt{font-size:12px;color:var(--muted);margin-bottom:7px}
+  .linkItem{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:7px}
+  .linkItem h4{margin:0;font-size:12.5px;font-weight:600;color:var(--text);line-height:1.5;word-break:break-word}
+  .linkItem p{margin:3px 0 0;font-size:12px;line-height:1.6;color:var(--muted);word-break:break-word}
+  .linkItem .lm{display:block;margin-top:4px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .linkEmpty{font-size:12px;color:var(--muted);padding:2px 0}
+
+  /* 通用状态块 */
+  .state{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px 18px;text-align:center;font-size:13.5px;color:var(--muted);line-height:1.7}
+  .state b{display:block;color:var(--text);font-size:14.5px;font-weight:600;margin-bottom:3px}
+  .state.warn b{color:var(--warn)}
+  .state .btn{margin-top:12px}
+
+  /* 轻提示 */
+  #toast{
+    position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);
+    transform:translate(-50%,12px);z-index:40;max-width:82%;
+    background:rgba(14,39,66,.96);border:1px solid var(--line);
+    border-radius:12px;padding:10px 16px;font-size:13px;line-height:1.55;color:var(--text);
+    box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s;word-break:break-word;text-align:center;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #toast.bad{border-color:rgba(255,107,107,.45)}
+  html[data-theme="sakura"] #toast{background:rgba(255,255,255,.97);box-shadow:0 8px 24px rgba(180,120,140,.22)}
+  html[data-theme="black"] #toast{background:rgba(23,25,28,.97)}
+
+  /* 视图切换与备份 */
+  .toolrow{display:flex;gap:8px;margin-bottom:12px}
+  .toolrow .btn{flex:1}
+
+  /* 图谱视图 */
+  #graphView[hidden]{display:none}
+  #confirmView[hidden]{display:none}
+  .confirmActions{display:flex;gap:8px;margin-top:10px}
+  .confirmActions .btn{flex:1}
+  .graphmeta{font-size:12px;color:var(--muted);padding:2px 2px 8px;line-height:1.6}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11.5px;color:var(--muted);margin-bottom:8px;padding:0 2px}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+  .graphbox{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;touch-action:manipulation}
+  .graphbox svg{display:block}
+  .gnode{cursor:pointer}
+  .gnode.dim,.gedge.dim{opacity:.12}
+  #graphDetail{margin-top:10px}
+  #graphDetail .card{margin-bottom:0}
+  .gnb{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+  .gnb button{border:1px solid var(--line);background:var(--card2);color:var(--muted);
+    border-radius:999px;padding:5px 10px;font-size:12px;font-family:inherit;min-height:32px}
+  .gnb button:active{opacity:.7}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="back" href="/" aria-label="返回首页">‹</a>
+  <div class="title">记忆与人格</div>
+  <button class="btn accent" id="rebuildBtn" type="button">重建图谱</button>
+</header>
+
+<div class="pullWrap" id="pullWrap"><span id="pullText">下拉刷新</span></div>
+
+<div class="tabs" id="viewTabs">
+  <button class="tab on" data-tab="memory" type="button">记忆库</button>
+  <button class="tab" data-tab="life" type="button">生活与关系网</button>
+  <button class="tab" data-tab="full" type="button">全量记忆</button>
+</div>
+
+<main class="wrap">
+  <section id="memoryView">
+  <!-- 未开启智能模式时的温和提示 -->
+  <div class="notice warn" id="notReady" hidden>
+    <div>
+      <strong>还没连上</strong>
+      先打开 App 让本地服务起来，再回来查看她的记忆。
+    </div>
+  </div>
+
+  <!-- 统计条 -->
+  <section class="stats" id="stats" hidden></section>
+  <div class="layerbar" id="layers" hidden></div>
+
+  <!-- 视图切换与备份 -->
+  <div class="toolrow">
+    <button class="btn mini" id="graphBtn" type="button">图谱</button>
+    <button class="btn mini" id="confirmBtn" type="button">反观记录</button>
+    <button class="btn mini" id="exportBtn" type="button">导出备份</button>
+    <button class="btn mini" id="importBtn" type="button">导入备份</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+  </div>
+
+  <!-- 搜索与筛选 -->
+  <div class="filters">
+    <input class="search" id="q" type="search" placeholder="搜索记忆标题或正文" autocomplete="off">
+    <div class="filterrow">
+      <select id="status" aria-label="按状态筛选">
+        <option value="">全部状态</option>
+        <option value="active">仅活跃</option>
+        <option value="revised">仅已修订</option>
+        <option value="archived">仅已归档</option>
+      </select>
+      <select id="limit" aria-label="显示条数">
+        <option value="30">30 条</option>
+        <option value="60" selected>60 条</option>
+        <option value="120">120 条</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="listhead">
+    <span>记忆条目</span>
+    <span class="total" id="listMeta"></span>
+  </div>
+
+  <div id="list"></div>
+
+  <!-- M14 反观记录，只读 -->
+  <section id="confirmView" hidden>
+    <div class="listhead"><span>M14 反观记录</span><span class="total" id="confirmMeta"></span></div>
+    <div id="confirmList"></div>
+  </section>
+
+  <!-- 图谱视图 -->
+  <section id="graphView" hidden>
+    <div class="graphmeta" id="graphMeta"></div>
+    <div class="legend">
+      <span><i style="background:#4d6bfe"></i>L1 生活领域</span>
+      <span><i style="background:#3ddc84"></i>L2 关系与人</span>
+      <span><i style="background:#ffb347"></i>L3 关键事件</span>
+      <span><i style="background:#ff6b6b"></i>L4 偏好触发</span>
+    </div>
+    <div class="graphbox" id="graphBox"></div>
+    <div id="graphDetail"></div>
+  </section>
+  </section>
+
+  <section id="lifeView" hidden>
+    <div class="vhead">
+      <b>生活与关系网</b>
+      <small>她的一天、心情与关系图谱，都从本地库里直接读取。</small>
+    </div>
+    <div id="lifeBody"></div>
+  </section>
+
+  <section id="fullView" hidden>
+    <div class="vhead">
+      <b>全量记忆 · 增援未来</b>
+      <small>把整个人格的记忆留在应用目录，只保存、不参与检索。</small>
+    </div>
+    <div class="vcard">
+      <div class="kvrow"><span>状态</span><b id="fullState">—</b></div>
+      <div class="kvrow"><span>留档用量</span><b id="fullInfo">—</b></div>
+      <div class="kvrow"><span>存档目录</span><b id="fullDir" style="max-width:64%;word-break:break-all">—</b></div>
+      <button class="btn mini" id="fullDirPick" type="button" style="width:100%;margin-top:8px" hidden>选择目录</button>
+    </div>
+    <button class="btn accent" id="fullToggle" type="button" style="width:100%;margin-bottom:8px">关闭全量记忆</button>
+    <button class="btn" id="fullExtract" type="button" style="width:100%">提取记忆到 U 盘 / 高速磁盘</button>
+    <div class="notice" style="margin-top:12px">开启后只把聊天原文、每轮心智状态、人设和 QT 账本额外留档到应用目录；正常记忆的衰减、归档与检索照常运行，不受这个开关影响。关闭后停止新增留档，已留档的文件保留。</div>
+  </section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* 跟随父页面主题（sakura / black / whale） */
+  var themeParam = '';
+  try{ themeParam = (new URLSearchParams(window.location.search).get('theme') || '').toLowerCase(); }catch(e){}
+  if (['sakura', 'black', 'whale'].indexOf(themeParam) >= 0){
+    document.documentElement.dataset.theme = themeParam;
+  }
+  var themeColor = {sakura: '#fff0f4', black: '#17191c', whale: '#061426'}[themeParam] || '';
+  if (themeColor){
+    var tcMeta = document.querySelector('meta[name="theme-color"]');
+    if (tcMeta) tcMeta.setAttribute('content', themeColor);
+  }
+
+  var state = {
+    q: '',
+    status: '',
+    limit: 60,
+    items: [],
+    stats: {},
+    view: 'list',
+    graph: { nodes: [], edges: [], pos: {}, sel: 0 },
+    tab: 'memory',
+    viz: null,
+    health: null,
+    showTruth: false,
+    selectedNode: 'her',
+    lifeTimer: null
+  };
+
+  var el = {
+    stats: document.getElementById('stats'),
+    layers: document.getElementById('layers'),
+    list: document.getElementById('list'),
+    listMeta: document.getElementById('listMeta'),
+    q: document.getElementById('q'),
+    status: document.getElementById('status'),
+    limit: document.getElementById('limit'),
+    rebuild: document.getElementById('rebuildBtn'),
+    notReady: document.getElementById('notReady'),
+    toast: document.getElementById('toast'),
+    filters: document.querySelector('.filters'),
+    listhead: document.querySelector('.listhead'),
+    graphBtn: document.getElementById('graphBtn'),
+    confirmBtn: document.getElementById('confirmBtn'),
+    confirmView: document.getElementById('confirmView'),
+    confirmList: document.getElementById('confirmList'),
+    confirmMeta: document.getElementById('confirmMeta'),
+    exportBtn: document.getElementById('exportBtn'),
+    importBtn: document.getElementById('importBtn'),
+    importFile: document.getElementById('importFile'),
+    graphView: document.getElementById('graphView'),
+    graphMeta: document.getElementById('graphMeta'),
+    graphBox: document.getElementById('graphBox'),
+    graphDetail: document.getElementById('graphDetail'),
+    tabs: document.getElementById('viewTabs'),
+    memoryView: document.getElementById('memoryView'),
+    lifeView: document.getElementById('lifeView'),
+    lifeBody: document.getElementById('lifeBody'),
+    fullView: document.getElementById('fullView'),
+    fullState: document.getElementById('fullState'),
+    fullInfo: document.getElementById('fullInfo'),
+    fullDir: document.getElementById('fullDir'),
+    fullDirPick: document.getElementById('fullDirPick'),
+    fullToggle: document.getElementById('fullToggle'),
+    fullExtract: document.getElementById('fullExtract')
+  };
+
+  var STATUS_LABELS = { active: '活跃', revised: '已修订', archived: '已归档' };
+  var LAYER_LABELS = {
+    core: '核心', long: '长期', short: '短期', fact: '事实', episode: '情景',
+    semantic: '语义', self: '自我', relation: '关系', plan: '计划',
+    preference: '偏好', trait: '特质', social: '社交'
+  };
+  var SOURCE_LABELS = {
+    chat: '对话', manual: '手动', import: '导入', probe: '探针',
+    review: '回访', night: '夜间整理', memory: '记忆'
+  };
+  var KNOB_INFO = {
+    talkativeness: ['话多程度', 0.45, 1.75], clinginess: ['粘人', 0.05, 1.0],
+    tease_level: ['损人', 0.0, 1.0], care_level: ['关心', 0.3, 1.0],
+    sticker_rate: ['表情包频率', 0.0, 1.0], proactive_bias: ['主动倾向', 0.1, 1.0],
+    cuteness: ['可爱', 0.3, 1.0]
+  };
+
+  /* ---------- 小工具 ---------- */
+  function esc(v){
+    return String(v == null ? '' : v)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function num(v){
+    if (v === null || v === undefined || v === '') return null;
+    var n = Number(v);
+    return isFinite(n) ? n : null;
+  }
+  function clamp01(n){
+    if (!isFinite(n)) return 0;
+    return Math.max(0, Math.min(1, n));
+  }
+  function pad2(n){ return n < 10 ? '0' + n : String(n); }
+  // 秒级时间戳转本地日期时间
+  function fmtTime(ts){
+    var n = Number(ts);
+    if (!isFinite(n) || n <= 0) return '';
+    if (n < 1e12) n = n * 1000;
+    var d = new Date(n);
+    if (isNaN(d.getTime())) return '';
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) +
+      ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+  function fmtWeight(w){
+    var n = num(w);
+    return n === null ? '' : (Math.round(n * 100) / 100).toFixed(2);
+  }
+  function layerLabel(v){
+    var s = String(v || '');
+    return LAYER_LABELS[s] || s;
+  }
+  function sourceLabel(v){
+    var s = String(v || '');
+    return SOURCE_LABELS[s] || s;
+  }
+  function toast(msg, bad){
+    el.toast.textContent = msg;
+    el.toast.className = 'show' + (bad ? ' bad' : '');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){
+      el.toast.className = '';
+    }, 2400);
+  }
+
+  /* ---------- 接口 ---------- */
+  function api(url, body){
+    var opt = { cache: 'no-store' };
+    if (body !== undefined){
+      opt.method = 'POST';
+      opt.headers = { 'Content-Type': 'application/json' };
+      opt.body = JSON.stringify(body);
+    }
+    return fetch(url, opt).then(function(res){
+      return res.json().catch(function(){ throw new Error('bad_json'); });
+    });
+  }
+  function isNotReady(data){
+    return !!(data && data.ok === false && data.error === 'not_ready');
+  }
+  function notReadyHint(){
+    el.notReady.hidden = false;
+    el.stats.hidden = true;
+    el.layers.hidden = true;
+    el.listMeta.textContent = '';
+    el.list.innerHTML =
+      '<div class="state warn"><b>智能模式未开启</b>' +
+      '先打开 App 让本地服务起来，再回来查看她的记忆。</div>';
+  }
+
+  /* ---------- 统计条 ---------- */
+  function renderStats(){
+    var st = state.stats || {};
+    var layers = (st.layers && typeof st.layers === 'object') ? st.layers : {};
+    var cards = [];
+    var active = num(st.active);
+    if (active === null && Object.keys(layers).length){
+      active = Object.keys(layers).reduce(function(sum, k){
+        return sum + (num(layers[k]) || 0);
+      }, 0);
+    }
+    if (active !== null) cards.push({ k: '活跃记忆', v: active });
+
+    var due = num(st.due_review);
+    if (due === null) due = num(st.due);
+    if (due !== null) cards.push({ k: '待回访', v: due });
+
+    var revised = num(st.revised);
+    if (revised !== null) cards.push({ k: '已修订', v: revised });
+
+    var archived = num(st.archived);
+    if (archived !== null) cards.push({ k: '已归档', v: archived });
+
+    var total = num(st.total);
+    if (total !== null) cards.push({ k: '匹配总数', v: total });
+
+    var versions = num(st.versions);
+    if (versions !== null) cards.push({ k: '历史版本', v: versions });
+
+    if (!cards.length){
+      el.stats.hidden = true;
+      el.stats.innerHTML = '';
+    } else {
+      el.stats.innerHTML = cards.map(function(c){
+        return '<div class="stat"><b>' + esc(c.v) + '</b><span>' + esc(c.k) + '</span></div>';
+      }).join('');
+      el.stats.hidden = false;
+    }
+
+    var layerKeys = Object.keys(layers).sort();
+    if (!layerKeys.length){
+      el.layers.hidden = true;
+      el.layers.innerHTML = '';
+      return;
+    }
+    el.layers.innerHTML = layerKeys.map(function(k){
+      return '<span class="chip">' + esc(layerLabel(k)) + '<i>' + esc(num(layers[k]) || 0) + '</i></span>';
+    }).join('');
+    el.layers.hidden = false;
+  }
+
+  /* ---------- 卡片 ---------- */
+  function metaChip(label, value){
+    if (value === null || value === undefined || String(value).trim() === '') return '';
+    return '<span>' + esc(label) + ' ' + esc(value) + '</span>';
+  }
+
+  function cardHtml(m){
+    var id = num(m.id);
+    var key = String(m.key || '').trim();
+    var value = String(m.value || '').trim();
+    var weight = num(m.weight);
+    var wPct = clamp01((weight === null ? 0 : weight)) * 100;
+    var status = String(m.status || '').trim();
+    var badgeCls = status === 'active' ? 'active' : (status === 'revised' ? 'revised' : (status === 'archived' ? 'archived' : ''));
+    var created = fmtTime(m.created_at);
+    var updated = fmtTime(m.updated_at);
+
+    var meta = '';
+    meta += metaChip('层级', layerLabel(m.layer));
+    meta += metaChip('来源', sourceLabel(m.source));
+    meta += metaChip('人物', m.person);
+    if (num(m.review_count) !== null) meta += metaChip('回访', num(m.review_count) + ' 次');
+    if (num(m.confidence) !== null) meta += metaChip('置信', (Math.round(num(m.confidence) * 100) / 100).toFixed(2));
+
+    var timeLine = '';
+    if (created) timeLine += '创建 ' + esc(created);
+    if (updated){
+      if (timeLine) timeLine += ' · ';
+      timeLine += '更新 ' + esc(updated);
+    }
+
+    var weightLine = '';
+    if (weight !== null){
+      weightLine =
+        '<div class="weightline"><div class="wbar"><i style="width:' + wPct + '%"></i></div>' +
+        '<span class="wnum">权重 ' + esc(fmtWeight(weight)) + '</span></div>';
+    }
+
+    return '' +
+      '<article class="card" data-id="' + esc(id === null ? '' : id) + '">' +
+        '<div class="cardTop">' +
+          '<h3>' + (key ? esc(key) : '未命名记忆') + '</h3>' +
+          '<span class="badge ' + badgeCls + '">' + esc(STATUS_LABELS[status] || status || '未知') + '</span>' +
+        '</div>' +
+        '<p class="value' + (value ? '' : ' empty') + '">' + (value ? esc(value) : '（正文为空）') + '</p>' +
+        weightLine +
+        (meta ? '<div class="meta">' + meta + '</div>' : '') +
+        (timeLine ? '<div class="times">' + timeLine + '</div>' : '') +
+        '<div class="actions">' +
+          '<button type="button" data-act="edit">编辑</button>' +
+          '<button type="button" data-act="links">关联</button>' +
+          '<button type="button" class="del" data-act="del">删除</button>' +
+        '</div>' +
+        '<div class="editbox" hidden>' +
+          '<textarea data-role="edit-value" rows="4">' + esc(m.value || '') + '</textarea>' +
+          '<div class="wrow">' +
+            '<label>权重</label>' +
+            '<input type="range" data-role="edit-weight" min="0.10" max="1.00" step="0.05" value="' + esc(weight === null ? 0.6 : clamp01(Math.max(0.1, weight))) + '">' +
+            '<span class="wnum" data-role="weight-num">' + esc(fmtWeight(weight === null ? 0.6 : Math.max(0.1, weight))) + '</span>' +
+          '</div>' +
+          '<div class="ebtns">' +
+            '<button type="button" data-act="cancel">取消</button>' +
+            '<button type="button" class="save" data-act="save">保存</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="linksbox" hidden data-loaded="0"></div>' +
+      '</article>';
+  }
+
+  function renderList(total){
+    var items = state.items || [];
+    el.listMeta.textContent = items.length
+      ? ('共 ' + (num(total) === null ? items.length : total) + ' 条，显示 ' + items.length)
+      : '';
+    if (!items.length){
+      el.list.innerHTML =
+        '<div class="state"><b>没有找到记忆</b>换个关键词，或把状态改成「全部状态」再试。</div>';
+      return;
+    }
+    el.list.innerHTML = items.map(cardHtml).join('');
+  }
+
+  function showLoading(){
+    el.listMeta.textContent = '';
+    el.list.innerHTML = '<div class="state"><b>正在读取记忆</b>请稍等片刻。</div>';
+  }
+  function showError(){
+    el.listMeta.textContent = '';
+    el.list.innerHTML =
+      '<div class="state"><b>读取失败</b>服务可能还没准备好，稍后再试一次。' +
+      '<br><button class="btn" type="button" data-act="retry">重新加载</button></div>';
+  }
+
+  /* ---------- 生活与关系网（原可视化面板，直接嵌在记忆管理里） ---------- */
+  function vcard(title, body){
+    return '<div class="vcard"><h4>' + esc(title) + '</h4>' + body + '</div>';
+  }
+  function bar(label, value, max, cls){
+    var pct = Math.max(0, Math.min(100, (Number(value) || 0) / (max || 1) * 100));
+    return '<div class="vbar"><div class="bh"><span>' + esc(label) + '</span><span>' +
+      (Number(value) || 0).toFixed(2) + '</span></div><div class="bt"><i class="' + (cls || '') +
+      '" style="width:' + pct.toFixed(1) + '%"></i></div></div>';
+  }
+  function vfeedList(items, render){
+    if (!items || !items.length) return '<div class="vempty">最近还没有记录</div>';
+    return items.map(render).join('');
+  }
+  function personaHistoryHtml(list){
+    var rows = Array.isArray(list) ? list : [];
+    var html = '<div class="kvrow"><span>人格演化记录</span><b>' + rows.length + ' 条</b></div>';
+    if (!rows.length) return html + '<div class="vempty">还没有记录，夜里复盘调整人格后会出现。</div>';
+    return html + rows.slice().reverse().map(function(x){
+      var changes = x.changed || {};
+      var names = Object.keys(changes).map(function(k){
+        return (KNOB_INFO[k] ? KNOB_INFO[k][0] : k) + (Number(changes[k]) > 0 ? ' ↑' : ' ↓');
+      }).join('、');
+      var stamp = (x.day ? x.day + ' ' : '') + fmtTime(x.ts);
+      return '<div class="vfeed"><span class="vt">' + esc(stamp) + '</span><br>' +
+        esc(names || '今天没有明显变化') +
+        (x.reason ? '<br><span class="vt">' + esc(x.reason) + '</span>' : '') + '</div>';
+    }).join('');
+  }
+  function renderHealth(){
+    var h = state.health;
+    if (!h || !h.ready) return vcard('本地运行状态', '<div class="vempty">本地服务还没启动。</div>');
+    var age = Number(h.scheduler_age);
+    var beat = age < 0 ? '还没心跳' : (age < 120 ? '运行中（' + Math.round(age) + ' 秒前）' : '已 ' + Math.round(age) + ' 秒没心跳');
+    var cs = h.catchup_status || {};
+    var learnDays = (cs.learning_days || []).length;
+    var selfDays = (cs.selfhood_days || []).length;
+    var catchup = (learnDays || selfDays)
+      ? ('记忆 ' + learnDays + ' 天 / 自我迭代 ' + selfDays + ' 天' + (cs.at ? '（' + fmtTime(cs.at) + '）' : ''))
+      : '今天已同步';
+    return vcard('本地运行状态',
+      '<div class="kvrow"><span>后台调度</span><b>' + esc(beat) + '</b></div>' +
+      '<div class="kvrow"><span>实践上次推进</span><b>' + esc(h.practice_last_tick ? fmtTime(h.practice_last_tick) : '—') + '</b></div>' +
+      '<div class="kvrow"><span>启动补跑</span><b>' + esc(catchup) + '</b></div>' +
+      (cs.error ? '<div class="kvrow"><span style="color:var(--danger)">补跑错误</span><b style="color:var(--danger)">' + esc(String(cs.error).slice(0, 80)) + '</b></div>' : '') +
+      '<div class="kvrow"><span>夜间复盘</span><b>' + esc(h.last_learning_date || '还没跑') + '</b></div>' +
+      '<div class="kvrow"><span>自我迭代</span><b>' + esc(h.last_selfhood_date || '还没跑') + '</b></div>' +
+      '<div class="kvrow"><span>实践结算</span><b>' + esc(h.last_practice_date || '还没跑') + '</b></div>');
+  }
+  function renderLife(v){
+    var p = v.practice || {}, s = v.selfhood || {}, w = v.world || {};
+    var cur = p.current || {}, nxt = p.next || {};
+    var html = '';
+    html += vcard('她现在在做什么',
+      '<div class="big">' + esc(cur.title || cur.kind || '空闲') + '</div>' +
+      '<div class="kvrow"><span>' + esc((cur.start || '') + ' - ' + (cur.end || '')) + '</span><b>' + esc(cur.place || '') + '</b></div>' +
+      (nxt && nxt.title ? '<div class="kvrow" style="margin-top:6px"><span>接下来</span><b>' + esc(nxt.title) + ' · ' + esc(nxt.start || '') + '</b></div>' : ''));
+    html += vcard('状态',
+      bar('疲劳', p.fatigue, 100, Number(p.fatigue) > 70 ? 'bad' : (Number(p.fatigue) > 45 ? 'warn' : '')) +
+      '<div class="kvrow"><span>心情</span><b>' + esc((v.mood || {}).label || (v.mood || {}).mood || '—') + '</b></div>' +
+      '<div class="kvrow"><span>身体</span><b>' + esc(v.body || '—') + '</b></div>');
+    html += vcard('自我更新（手机端也在跑）',
+      (s.last_learning && s.last_learning.summary ? '<div class="vfeed">' + esc(s.last_learning.summary) + '</div>' : '') +
+      (s.last_learning && s.last_learning.reflection ? '<div class="vfeed"><span class="vt">夜间反思</span><br>' + esc(s.last_learning.reflection) + '</div>' : '') +
+      '<div class="kvrow"><span>上次夜间复盘</span><b>' + esc(s.last_learning_date || '还没跑') + '</b></div>' +
+      '<div class="kvrow"><span>上次关系演化</span><b>' + esc(s.last_selfhood_date || '还没跑') + '</b></div>' +
+      '<div class="kvrow"><span>记忆探针</span><b>' + esc((s.probe || {}).passed || 0) + '/' + esc((s.probe || {}).total || 0) + '</b></div>' +
+      personaHistoryHtml(s.persona_history));
+    html += vcard('她最近看到的',
+      vfeedList((w.views || []).slice(-4), function(x){ return '<div class="vfeed">' + esc(x.surface || '') + '</div>'; }) +
+      ((w.events || []).length ? '<label class="vtruth"><span>显示表象背后的真相</span><input type="checkbox" id="lifeTruth"' + (state.showTruth ? ' checked' : '') + '></label>' : ''));
+    if ((w.events || []).length){
+      html += vcard('虚拟社会事件',
+        vfeedList((w.events || []).slice(-8).reverse(), function(e){
+          return '<div class="vfeed"><span class="vt">' + esc(e.actor || '') + ' · ' + esc(e.kind || '') + '</span><br>' +
+            esc(e.action || '') + ' → ' + esc(e.outcome || '') +
+            (state.showTruth ? '<br><span class="vt">真相：' + esc(e.truth || e.true_cause || '') + '</span>' : '') + '</div>';
+        }));
+    }
+    html += renderHealth();
+    return html;
+  }
+
+  /* ---------- 加载列表 ---------- */
+  function load(){
+    // 请求序号：连续输入时只采用最后一次请求的结果
+    var seq = ++load.seq;
+    showLoading();
+
+    var url = '/api/memory/list?q=' + encodeURIComponent(state.q) +
+      '&status=' + encodeURIComponent(state.status) +
+      '&limit=' + encodeURIComponent(state.limit);
+
+    api(url).then(function(data){
+      if (seq !== load.seq) return;
+      if (!data || data.ok !== true){
+        if (isNotReady(data)){
+          notReadyHint();
+        } else {
+          showError();
+        }
+        return;
+      }
+      state.items = Array.isArray(data.items) ? data.items : [];
+      state.stats = data.stats || {};
+      el.notReady.hidden = true;
+      renderStats();
+      renderList(data.total);
+    }).catch(function(){
+      if (seq !== load.seq) return;
+      showError();
+    });
+  }
+  load.seq = 0;
+
+  /* ---------- 编辑 ---------- */
+  function findCard(node){
+    var p = node;
+    while (p && p !== document){
+      if (p.classList && p.classList.contains('card')) return p;
+      p = p.parentNode;
+    }
+    return null;
+  }
+  function openEdit(card){
+    var box = card.querySelector('.editbox');
+    if (!box) return;
+    box.hidden = false;
+    var ta = box.querySelector('[data-role="edit-value"]');
+    if (ta) setTimeout(function(){ ta.focus(); }, 60);
+  }
+  function closeEdit(card){
+    var box = card.querySelector('.editbox');
+    if (box) box.hidden = true;
+  }
+
+  function saveEdit(card){
+    var id = card.getAttribute('data-id');
+    var ta = card.querySelector('[data-role="edit-value"]');
+    var range = card.querySelector('[data-role="edit-weight"]');
+    if (!id){
+      toast('这条记忆缺少编号，无法保存', true);
+      return;
+    }
+    var value = ta ? String(ta.value || '').trim() : '';
+    var weight = range ? Number(range.value) : NaN;
+    if (!value){
+      toast('正文不能为空', true);
+      if (ta) ta.focus();
+      return;
+    }
+    if (!isFinite(weight)){
+      toast('权重要在 0.1 到 1.0 之间', true);
+      return;
+    }
+    weight = Math.max(0.1, Math.min(1.0, weight));
+
+    var saveBtn = card.querySelector('[data-act="save"]');
+    if (saveBtn){ saveBtn.disabled = true; saveBtn.textContent = '保存中'; }
+
+    api('/api/memory/update', { id: Number(id), value: value, weight: weight }).then(function(data){
+      if (isNotReady(data)){
+        toast('还没连上，先打开 App 让本地服务起来');
+        notReadyHint();
+        return;
+      }
+      if (!data || data.ok !== true){
+        toast('保存失败，请稍后再试', true);
+        return;
+      }
+      toast('已保存');
+      load();
+    }).catch(function(){
+      toast('保存失败，请检查服务是否在线', true);
+    }).then(function(){
+      if (saveBtn){ saveBtn.disabled = false; saveBtn.textContent = '保存'; }
+    });
+  }
+
+  /* ---------- 删除 ---------- */
+  function removeMemory(card){
+    var id = card.getAttribute('data-id');
+    if (!id) return;
+    if (!window.confirm('确认删除这条记忆？删除后会归档，可在「仅已归档」里查看。')) return;
+
+    var btn = card.querySelector('[data-act="del"]');
+    if (btn){ btn.disabled = true; btn.textContent = '删除中'; }
+
+    api('/api/memory/delete', { id: Number(id) }).then(function(data){
+      if (isNotReady(data)){
+        toast('还没连上，先打开 App 让本地服务起来');
+        notReadyHint();
+        return;
+      }
+      if (!data || data.ok !== true){
+        toast('删除失败，请稍后再试', true);
+        return;
+      }
+      toast('已归档');
+      load();
+    }).catch(function(){
+      toast('删除失败，请检查服务是否在线', true);
+    }).then(function(){
+      if (btn){ btn.disabled = false; btn.textContent = '删除'; }
+    });
+  }
+
+  /* ---------- 关联 ---------- */
+  function loadLinks(card){
+    var box = card.querySelector('.linksbox');
+    if (!box) return;
+    var id = card.getAttribute('data-id');
+    if (!id) return;
+
+    if (box.getAttribute('data-loaded') === '1'){
+      box.hidden = !box.hidden;
+      return;
+    }
+    box.hidden = false;
+    box.innerHTML = '<div class="linkEmpty">正在读取关联…</div>';
+
+    api('/api/memory/links?id=' + encodeURIComponent(id)).then(function(data){
+      if (isNotReady(data)){
+        box.innerHTML = '<div class="linkEmpty">还没连上，先打开 App 让本地服务起来。</div>';
+        return;
+      }
+      if (!data || data.ok !== true){
+        box.innerHTML = '<div class="linkEmpty">关联读取失败，请稍后再试。</div>';
+        return;
+      }
+      var items = Array.isArray(data.items) ? data.items : [];
+      if (!items.length){
+        box.innerHTML = '<div class="lt">关联记忆</div><div class="linkEmpty">还没有建立关联，可试试右上角的「重建图谱」。</div>';
+        box.setAttribute('data-loaded', '1');
+        return;
+      }
+      var html = '<div class="lt">关联记忆 ' + items.length + ' 条</div>';
+      html += items.map(function(m){
+        var key = String(m.key || '').trim();
+        var val = String(m.value || '').trim();
+        var reason = String(m.link_reason || '').trim();
+        var lw = fmtWeight(m.link_weight);
+        return '<div class="linkItem">' +
+          '<h4>' + (key ? esc(key) : '未命名记忆') + '</h4>' +
+          (val ? '<p>' + esc(val) + '</p>' : '') +
+          '<span class="lm">关联度 ' + (lw ? esc(lw) : '-') + (reason ? ' · ' + esc(reason) : '') + '</span>' +
+        '</div>';
+      }).join('');
+      box.innerHTML = html;
+      box.setAttribute('data-loaded', '1');
+    }).catch(function(){
+      box.innerHTML = '<div class="linkEmpty">关联读取失败，请检查服务是否在线。</div>';
+    });
+  }
+
+  /* ---------- 重建图谱 ---------- */
+  function rebuild(){
+    if (el.rebuild.disabled) return;
+    el.rebuild.disabled = true;
+    el.rebuild.textContent = '重建中';
+
+    api('/api/memory/rebuild', {}).then(function(data){
+      if (isNotReady(data)){
+        toast('还没连上，先打开 App 让本地服务起来');
+        notReadyHint();
+        return;
+      }
+      if (!data || data.ok !== true){
+        toast('重建失败，请稍后再试', true);
+        return;
+      }
+      var n = num(data.links);
+      toast('已重建图谱，生成 ' + (n === null ? 0 : n) + ' 条关联');
+      if (state.view === 'graph') loadGraph(); else load();
+    }).catch(function(){
+      toast('重建失败，请检查服务是否在线', true);
+    }).then(function(){
+      el.rebuild.disabled = false;
+      el.rebuild.textContent = '重建图谱';
+    });
+  }
+
+  /* ---------- 视图切换 ---------- */
+  function showView(v){
+    state.view = v === 'graph' ? 'graph' : 'list';
+    var isGraph = state.view === 'graph';
+    el.graphView.hidden = !isGraph;
+    el.confirmView.hidden = true;
+    el.filters.style.display = isGraph ? 'none' : '';
+    el.listhead.style.display = isGraph ? 'none' : '';
+    el.list.style.display = isGraph ? 'none' : '';
+    el.stats.hidden = isGraph ? true : el.stats.hidden;
+    el.layers.hidden = isGraph ? true : el.layers.hidden;
+    el.graphBtn.textContent = isGraph ? '返回列表' : '图谱';
+    if (isGraph) loadGraph();
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- M14 反观记录 ---------- */
+  function fmtProposal(p){
+    p = p || {};
+    var parts = [];
+    if (p.self_worth) parts.push('自我价值 ' + (p.self_worth > 0 ? '+' : '') + p.self_worth);
+    if (p.mood) parts.push('心情 ' + (p.mood > 0 ? '+' : '') + p.mood);
+    if (p.grievance) parts.push('委屈 ' + (p.grievance > 0 ? '+' : '') + p.grievance);
+    var persona = p.persona || {};
+    Object.keys(persona).forEach(function(k){ parts.push(k + ' ' + persona[k]); });
+    var drives = p.drives || {};
+    Object.keys(drives).forEach(function(k){ parts.push(k + ' ' + drives[k]); });
+    if ((p.relation || []).length) parts.push('关系变更 ' + p.relation.length + ' 条');
+    return parts.join('｜') || '无具体变更';
+  }
+
+  function loadConfirm(){
+    el.confirmMeta.textContent = '读取中';
+    api('/api/qt/ledger?table=qt_tensions&limit=50').then(function(data){
+      if (!data || !data.ok){ el.confirmMeta.textContent = ''; el.confirmList.innerHTML = '<div class="state"><b>读取失败</b>稍后再试。</div>'; return; }
+      var items = (data.items || []).filter(function(t){
+        return String(t.a_ref || '') === 'M14 反观确证' ||
+          String(t.topic || '') === '自我节点变更待确认';
+      });
+      el.confirmMeta.textContent = items.length ? '最近 ' + items.length + ' 条' : '还没有记录';
+      if (!items.length){
+        el.confirmList.innerHTML = '<div class="state"><b>她还没有做过反观决策</b>实践结算后，她会自己判断要不要写入自我节点，结果会记在这里。</div>';
+        return;
+      }
+      el.confirmList.innerHTML = items.map(function(t){
+        var p = {};
+        try { p = JSON.parse(t.meta || '{}'); } catch (e) { p = {}; }
+        var st = String(t.status || '');
+        var badge = st === 'confirmed' ? '<span class="badge done">已写入</span>' :
+          (st === 'rejected' ? '<span class="badge rejected">她没同意</span>' :
+          '<span class="badge revised">判断中</span>');
+        var note = String(t.note || '').trim();
+        return '<div class="card"><div class="cardTop"><h3>' + esc(t.topic || '反观确证') + '</h3>' +
+          badge + '</div>' +
+          '<div class="value">' + esc(fmtProposal(p)) + '</div>' +
+          (note ? '<div class="times">' + esc(note) + '</div>' : '') +
+          '<div class="meta"><span>' + esc(t.a_ref || '') + ' → ' + esc(t.b_ref || '') + '</span>' +
+          '<span>' + esc(fmtTime(t.ts)) + '</span></div></div>';
+      }).join('');
+    }).catch(function(){
+      el.confirmMeta.textContent = '';
+      el.confirmList.innerHTML = '<div class="state"><b>读取失败</b>检查本地服务。</div>';
+    });
+  }
+
+  function openConfirm(){
+    if (!el.confirmView.hidden){ showView('list'); return; }
+    state.view = 'confirm';
+    el.graphView.hidden = true;
+    el.filters.style.display = 'none';
+    el.listhead.style.display = 'none';
+    el.list.style.display = 'none';
+    el.confirmView.hidden = false;
+    el.graphBtn.textContent = '图谱';
+    loadConfirm();
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- 导出 / 导入 ---------- */
+  function doExport(){
+    // 服务端以 attachment 下发：App 内由系统下载器接管，浏览器里直接下载。
+    // 用临时 <a download> 而不是 location.href，避免页面导航被中止时在 console 留 ERR_ABORTED。
+    toast('开始导出，文件会存到「下载」目录');
+    var a = document.createElement('a');
+    a.href = '/api/memory/export';
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ a.remove(); }, 500);
+  }
+
+  function doImportFile(file){
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024){
+      toast('备份文件太大（超过 20MB）', true);
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(){
+      var data = null;
+      try {
+        data = JSON.parse(String(reader.result || ''));
+      } catch (e) {
+        data = null;
+      }
+      if (!data || !Array.isArray(data.memories)){
+        toast('不是有效的记忆备份文件', true);
+        return;
+      }
+      if (!window.confirm('导入 ' + data.memories.length + ' 条记忆？同名记忆会自动合并，不会重复。')) return;
+      el.importBtn.disabled = true;
+      el.importBtn.textContent = '导入中';
+      api('/api/memory/import', { data: data }).then(function(res){
+        if (isNotReady(res)){
+          toast('还没连上，先打开 App 让本地服务起来');
+          notReadyHint();
+          return;
+        }
+        if (!res || res.ok !== true){
+          toast('导入失败，请稍后再试', true);
+          return;
+        }
+        var ins = res.insertion || {};
+        var cont = (ins.continuity || res.continuity || {}).score;
+        var extra = '';
+        if (cont !== undefined) extra = '｜连续性 ' + cont;
+        if (ins.body_changed) extra += '｜新载体已重新校准';
+        toast('导入完成：新增 ' + (num(res.added) || 0) + ' 条，合并 ' + (num(res.merged) || 0) +
+          ' 条' + (num(res.skipped) ? '，跳过 ' + num(res.skipped) + ' 条' : '') + extra);
+        load();
+      }).catch(function(){
+        toast('导入失败，请检查服务是否在线', true);
+      }).then(function(){
+        el.importBtn.disabled = false;
+        el.importBtn.textContent = '导入备份';
+      });
+    };
+    reader.onerror = function(){
+      toast('读取文件失败', true);
+    };
+    reader.readAsText(file);
+  }
+
+  /* ---------- 图谱视图 ---------- */
+  var LAYER_COLORS = { L1: '#4d6bfe', L2: '#3ddc84', L3: '#ffb347', L4: '#ff6b6b' };
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function loadGraph(){
+    el.graphMeta.textContent = '正在读取图谱…';
+    el.graphBox.innerHTML = '';
+    el.graphDetail.innerHTML = '';
+    api('/api/memory/graph?limit=80').then(function(data){
+      if (isNotReady(data)){
+        notReadyHint();
+        el.graphMeta.textContent = '还没连上，先打开 App 让本地服务起来。';
+        return;
+      }
+      if (!data || data.ok !== true){
+        el.graphMeta.textContent = '图谱读取失败，请稍后再试。';
+        return;
+      }
+      state.graph.nodes = Array.isArray(data.nodes) ? data.nodes : [];
+      state.graph.edges = Array.isArray(data.edges) ? data.edges : [];
+      state.graph.sel = 0;
+      renderGraph(num(data.total) || 0);
+    }).catch(function(){
+      el.graphMeta.textContent = '图谱读取失败，请检查服务是否在线。';
+    });
+  }
+
+  // 轻量力导向布局：环形初始化 → 斥力 + 边弹簧 + 向心，迭代收敛
+  function layoutGraph(nodes, edges, W, H){
+    var pos = {}, i, j;
+    var R = Math.min(W, H) * 0.36;
+    for (i = 0; i < nodes.length; i++){
+      var a = 2 * Math.PI * i / Math.max(1, nodes.length);
+      pos[nodes[i].id] = { x: W / 2 + Math.cos(a) * R, y: H / 2 + Math.sin(a) * R, vx: 0, vy: 0 };
+    }
+    var iter = nodes.length > 90 ? 100 : 150;
+    for (var t = 0; t < iter; t++){
+      // 斥力：节点互相推开
+      for (i = 0; i < nodes.length; i++){
+        var A = pos[nodes[i].id];
+        for (j = i + 1; j < nodes.length; j++){
+          var B = pos[nodes[j].id];
+          var dx = A.x - B.x, dy = A.y - B.y;
+          var d2 = dx * dx + dy * dy || 0.01;
+          var f = 900 / d2;
+          if (f > 3) f = 3;
+          var d = Math.sqrt(d2);
+          A.vx += dx / d * f; A.vy += dy / d * f;
+          B.vx -= dx / d * f; B.vy -= dy / d * f;
+        }
+      }
+      // 弹簧：有边的拉近，权重越高越近
+      for (i = 0; i < edges.length; i++){
+        var e = edges[i];
+        var pA = pos[e.a], pB = pos[e.b];
+        if (!pA || !pB) continue;
+        var sx = pB.x - pA.x, sy = pB.y - pA.y;
+        var sd = Math.sqrt(sx * sx + sy * sy) || 1;
+        var want = 110 - clamp01(e.weight) * 55;
+        var sf = (sd - want) * 0.02;
+        pA.vx += sx / sd * sf; pA.vy += sy / sd * sf;
+        pB.vx -= sx / sd * sf; pB.vy -= sy / sd * sf;
+      }
+      // 向心 + 阻尼 + 边界
+      for (i = 0; i < nodes.length; i++){
+        var P = pos[nodes[i].id];
+        P.vx += (W / 2 - P.x) * 0.005;
+        P.vy += (H / 2 - P.y) * 0.005;
+        P.x += P.vx * 0.6;
+        P.y += P.vy * 0.6;
+        P.vx *= 0.6;
+        P.vy *= 0.6;
+        P.x = Math.max(20, Math.min(W - 20, P.x));
+        P.y = Math.max(20, Math.min(H - 20, P.y));
+      }
+    }
+    return pos;
+  }
+
+  function renderGraph(total){
+    var nodes = state.graph.nodes, edges = state.graph.edges;
+    el.graphMeta.textContent = '节点 ' + nodes.length + ' · 关联 ' + edges.length +
+      ' · 全库 ' + total + ' 条（按权重取前 ' + nodes.length + '，点节点看详情）';
+    el.graphDetail.innerHTML = '';
+    if (!nodes.length){
+      el.graphBox.innerHTML = '<div class="state"><b>图谱还是空的</b>先聊几句，或点右上角「重建图谱」。</div>';
+      return;
+    }
+    var boxW = el.graphBox.clientWidth || 360;
+    var W = Math.max(300, boxW), H = 430;
+    var pos = layoutGraph(nodes, edges, W, H);
+    state.graph.pos = pos;
+
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', String(H));
+
+    edges.forEach(function(e){
+      var pA = pos[e.a], pB = pos[e.b];
+      if (!pA || !pB) return;
+      var line = document.createElementNS(SVG_NS, 'line');
+      line.setAttribute('x1', pA.x); line.setAttribute('y1', pA.y);
+      line.setAttribute('x2', pB.x); line.setAttribute('y2', pB.y);
+      line.setAttribute('stroke', '#4d6bfe');
+      line.setAttribute('stroke-opacity', String(0.12 + clamp01(e.weight) * 0.4));
+      line.setAttribute('stroke-width', String(0.6 + clamp01(e.weight) * 1.8));
+      line.setAttribute('class', 'gedge');
+      line.setAttribute('data-a', e.a);
+      line.setAttribute('data-b', e.b);
+      svg.appendChild(line);
+    });
+
+    nodes.forEach(function(n){
+      var g = document.createElementNS(SVG_NS, 'g');
+      g.setAttribute('class', 'gnode');
+      g.setAttribute('data-id', n.id);
+      var c = document.createElementNS(SVG_NS, 'circle');
+      c.setAttribute('cx', pos[n.id].x);
+      c.setAttribute('cy', pos[n.id].y);
+      c.setAttribute('r', String(5 + clamp01(n.weight) * 11));
+      c.setAttribute('fill', LAYER_COLORS[n.layer] || '#8fb3d9');
+      c.setAttribute('fill-opacity', '0.9');
+      c.setAttribute('stroke', 'rgba(234,244,255,.35)');
+      c.setAttribute('stroke-width', '1');
+      var title = document.createElementNS(SVG_NS, 'title');
+      title.textContent = (n.key || '未命名记忆');
+      g.appendChild(c);
+      g.appendChild(title);
+      g.addEventListener('click', function(){ selectGraphNode(Number(n.id)); });
+      svg.appendChild(g);
+    });
+
+    el.graphBox.innerHTML = '';
+    el.graphBox.appendChild(svg);
+  }
+
+  function selectGraphNode(id){
+    var nodes = state.graph.nodes, edges = state.graph.edges;
+    var node = null, i;
+    for (i = 0; i < nodes.length; i++){
+      if (Number(nodes[i].id) === id){ node = nodes[i]; break; }
+    }
+    if (!node) return;
+    state.graph.sel = state.graph.sel === id ? 0 : id; // 再点一次取消选中
+    var sel = state.graph.sel;
+
+    // 邻居集合
+    var nb = {};
+    if (sel){
+      edges.forEach(function(e){
+        if (Number(e.a) === sel) nb[Number(e.b)] = e;
+        else if (Number(e.b) === sel) nb[Number(e.a)] = e;
+      });
+    }
+    // 高亮：非邻居压暗
+    var gs = el.graphBox.querySelectorAll('.gnode');
+    for (i = 0; i < gs.length; i++){
+      var nid = Number(gs[i].getAttribute('data-id'));
+      gs[i].setAttribute('class', 'gnode' + (sel && nid !== sel && !nb[nid] ? ' dim' : ''));
+    }
+    var ls = el.graphBox.querySelectorAll('.gedge');
+    for (i = 0; i < ls.length; i++){
+      var ea = Number(ls[i].getAttribute('data-a')), eb = Number(ls[i].getAttribute('data-b'));
+      ls[i].setAttribute('class', 'gedge' + (sel && ea !== sel && eb !== sel ? ' dim' : ''));
+    }
+
+    if (!sel){
+      el.graphDetail.innerHTML = '';
+      return;
+    }
+    // 详情卡 + 邻居入口
+    var weight = num(node.weight);
+    var meta = '';
+    meta += metaChip('层级', layerLabel(node.layer));
+    meta += metaChip('类型', node.kind);
+    meta += metaChip('人物', node.person);
+    meta += metaChip('情绪', node.emotion);
+    var html = '<article class="card">' +
+      '<div class="cardTop"><h3>' + (node.key ? esc(node.key) : '未命名记忆') + '</h3>' +
+      '<span class="badge">' + esc(node.code || '') + '</span></div>' +
+      '<p class="value">' + esc(node.value || '（正文为空）') + '</p>' +
+      (weight !== null
+        ? '<div class="weightline"><div class="wbar"><i style="width:' + (clamp01(weight) * 100) + '%"></i></div>' +
+          '<span class="wnum">权重 ' + esc(fmtWeight(weight)) + '</span></div>'
+        : '') +
+      (meta ? '<div class="meta">' + meta + '</div>' : '');
+    var nbIds = Object.keys(nb);
+    if (nbIds.length){
+      html += '<div class="gnb">';
+      nbIds.forEach(function(k){
+        var other = null;
+        for (var j = 0; j < nodes.length; j++){
+          if (Number(nodes[j].id) === Number(k)){ other = nodes[j]; break; }
+        }
+        if (!other) return;
+        var reason = String(nb[k].reason || '');
+        html += '<button type="button" data-nb="' + esc(k) + '">' +
+          esc(other.key || '未命名记忆') + (reason ? ' · ' + esc(reason) : '') + '</button>';
+      });
+      html += '</div>';
+    }
+    html += '</article>';
+    el.graphDetail.innerHTML = html;
+  }
+
+  /* ---------- 交互绑定 ---------- */
+  var searchTimer = null;
+  el.q.addEventListener('input', function(){
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function(){
+      state.q = el.q.value.trim();
+      load();
+    }, 320);
+  });
+  el.q.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){
+      e.preventDefault();
+      clearTimeout(searchTimer);
+      state.q = el.q.value.trim();
+      load();
+    }
+  });
+  el.status.addEventListener('change', function(){
+    state.status = el.status.value;
+    load();
+  });
+  el.limit.addEventListener('change', function(){
+    state.limit = Number(el.limit.value) || 60;
+    load();
+  });
+  /* ---------- 下拉刷新 ---------- */
+  var PULL_TRIGGER = 46, PULL_MAX = 84;
+  var pullState = { y0: 0, dist: 0, active: false };
+  function setPull(h, label){
+    var wrap = document.getElementById('pullWrap');
+    var text = document.getElementById('pullText');
+    if (wrap) wrap.style.height = h ? h + 'px' : '0px';
+    if (text && label) text.textContent = label;
+  }
+  function pullRefresh(){
+    if (state.tab === 'life'){ loadLife(); return; }
+    if (state.tab === 'full'){ loadFull(); return; }
+    if (state.view === 'graph') loadGraph();
+    else if (state.view === 'confirm') loadConfirm();
+    else load();
+  }
+  function endPull(){
+    if (!pullState.active) return;
+    pullState.active = false;
+    if (pullState.dist >= PULL_TRIGGER){
+      setPull(30, '刷新中…');
+      pullRefresh();
+      setTimeout(function(){ setPull(0, '下拉刷新'); }, 900);
+    } else {
+      setPull(0, '下拉刷新');
+    }
+  }
+  document.addEventListener('touchstart', function(e){
+    if (e.touches.length !== 1){ pullState.active = false; return; }
+    if ((window.pageYOffset || document.documentElement.scrollTop || 0) > 0) return;
+    pullState.y0 = e.touches[0].clientY;
+    pullState.dist = 0;
+    pullState.active = true;
+  }, {passive: true});
+  document.addEventListener('touchmove', function(e){
+    if (!pullState.active) return;
+    var dy = e.touches[0].clientY - pullState.y0;
+    if (dy <= 0){
+      pullState.dist = 0;
+      setPull(0, '下拉刷新');
+      return;
+    }
+    if (e.cancelable) e.preventDefault();
+    pullState.dist = Math.min(PULL_MAX, dy * 0.55);
+    setPull(pullState.dist, '下拉刷新');
+  }, {passive: false});
+  document.addEventListener('touchend', endPull);
+  document.addEventListener('touchcancel', endPull);
+
+  if (el.tabs){
+    el.tabs.addEventListener('click', function(e){
+      var b = e.target.closest ? e.target.closest('.tab') : null;
+      if (b) switchTab(b.getAttribute('data-tab'));
+    });
+  }
+  if (el.lifeBody){
+    el.lifeBody.addEventListener('click', function(e){
+      var node = e.target.closest ? e.target.closest('[data-vnode]') : null;
+      if (!node) return;
+      state.selectedNode = node.getAttribute('data-vnode');
+      renderViz();
+    });
+    el.lifeBody.addEventListener('change', function(e){
+      if (e.target && e.target.id === 'lifeTruth'){
+        state.showTruth = !!e.target.checked;
+        renderViz();
+      }
+    });
+  }
+  el.rebuild.addEventListener('click', rebuild);
+  el.graphBtn.addEventListener('click', function(){
+    showView(state.view === 'graph' ? 'list' : 'graph');
+  });
+  el.confirmBtn.addEventListener('click', openConfirm);
+  el.exportBtn.addEventListener('click', doExport);
+  el.importBtn.addEventListener('click', function(){
+    el.importFile.click();
+  });
+  el.importFile.addEventListener('change', function(){
+    var f = el.importFile.files && el.importFile.files[0];
+    el.importFile.value = '';
+    doImportFile(f);
+  });
+  el.graphDetail.addEventListener('click', function(e){
+    var t = e.target;
+    var btn = t.closest ? t.closest('button[data-nb]') : null;
+    if (!btn) return;
+    selectGraphNode(Number(btn.getAttribute('data-nb')));
+  });
+
+  el.list.addEventListener('click', function(e){
+    var t = e.target;
+    var btn = t.closest ? t.closest('button[data-act]') : null;
+    if (!btn) return;
+    var act = btn.getAttribute('data-act');
+    if (act === 'retry'){
+      load();
+      return;
+    }
+    var card = findCard(btn);
+    if (!card) return;
+    if (act === 'edit') openEdit(card);
+    else if (act === 'cancel') closeEdit(card);
+    else if (act === 'save') saveEdit(card);
+    else if (act === 'del') removeMemory(card);
+    else if (act === 'links') loadLinks(card);
+  });
+
+  el.list.addEventListener('input', function(e){
+    var t = e.target;
+    if (!t || !t.getAttribute) return;
+    if (t.getAttribute('data-role') === 'edit-weight'){
+      var card = findCard(t);
+      var out = card ? card.querySelector('[data-role="weight-num"]') : null;
+      if (out) out.textContent = fmtWeight(Number(t.value));
+    }
+  });
+
+  /* ---------- 关系网与加载 ---------- */
+  function renderRelationGraph(v){
+    var nodes = (v.social || {}).nodes || [], edges = (v.social || {}).edges || [];
+    if (!nodes.length) return '<div class="vempty">关系网还没有数据</div>';
+    var W = 440, H = 440, cx = 220, cy = 220, R = 172, byId = {}, positions = {};
+    nodes.forEach(function(n){ byId[n.id] = n; });
+    if (byId['her']) positions['her'] = [cx, cy];
+    var others = nodes.filter(function(n){ return n.id !== 'her'; });
+    others.forEach(function(n, i){
+      var a = -Math.PI / 2 + i * 2 * Math.PI / Math.max(1, others.length);
+      positions[n.id] = [cx + Math.cos(a) * R, cy + Math.sin(a) * R];
+    });
+    var svg = '<svg viewBox="0 0 440 440">';
+    edges.forEach(function(e){
+      var p1 = positions[e.a], p2 = positions[e.b];
+      if (!p1 || !p2) return;
+      var depth = Number(e.depth || 0), conflict = Number(e.conflict || 0);
+      var color = conflict > 30 ? '#d9534f' : (depth > 60 ? '#07c160' : '#9aa0a6');
+      svg += '<line x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + p2[0] + '" y2="' + p2[1] +
+        '" stroke="' + color + '" stroke-opacity="' + (0.14 + Math.min(0.5, depth / 180)) +
+        '" stroke-width="' + (0.8 + Math.min(3, depth / 36)) + '"/>';
+    });
+    nodes.forEach(function(n){
+      var pos = positions[n.id] || [cx, cy], depth = Number(n.depth || 0);
+      var r = n.id === 'her' ? 22 : (n.id === 'user' ? 14 : (7 + Math.min(6, depth / 16)));
+      var fill = n.id === 'her' ? '#07c160' : (n.id === 'user' ? '#4a90d9' : '#8a9099');
+      svg += '<circle data-vnode="' + esc(n.id) + '" cx="' + pos[0] + '" cy="' + pos[1] +
+        '" r="' + r + '" fill="' + fill + '" stroke="#fff" stroke-width="1.5"/>';
+      svg += '<text x="' + pos[0] + '" y="' + (pos[1] + r + 9) +
+        '" text-anchor="middle" font-size="7.5" fill="currentColor">' +
+        esc(String(n.name || n.id).slice(0, 4)) + '</text>';
+    });
+    svg += '</svg>';
+    return svg;
+  }
+  function renderSocial(v){
+    var nodes = (v.social || {}).nodes || [];
+    var sel = nodes.filter(function(n){ return n.id === state.selectedNode; })[0] ||
+      nodes.filter(function(n){ return n.id === 'her'; })[0] || nodes[0] || {};
+    var total = Number((v.social || {}).total || nodes.length);
+    var html = '<div class="vnote">社会关系神经网络：活跃 ' + total + ' 人，图中显示关系最深的 ' +
+      nodes.length + ' 人。关系由她自己生长：偶尔认识新的人，也会慢慢淡出。点圆圈可以看细节。</div>';
+    html += '<div class="vgraph">' + renderRelationGraph(v) + '</div>';
+    html += vcard('关系详情：' + (sel.name || sel.id || '—'),
+      '<div class="vdetail"><b>' + esc(sel.role || '') + '</b><br>信任 ' +
+      Number(sel.trust || 0).toFixed(0) + '｜亲密 ' + Number(sel.intimacy || 0).toFixed(0) +
+      '｜矛盾 ' + Number(sel.conflict || 0).toFixed(0) + '｜依赖 ' +
+      Number(sel.dependency || 0).toFixed(0) + '｜影响 ' + Number(sel.influence || 0).toFixed(0) +
+      '｜深度 ' + Number(sel.depth || 0).toFixed(0) + '<br>最近：' + esc(sel.last_event || '—') + '</div>');
+    html += vcard('最近的关系事件',
+      vfeedList(((v.social || {}).events || []).slice(0, 10), function(e){
+        return '<div class="vfeed"><span class="vt">' + fmtTime(e.ts) +
+          (e.node ? ' · ' + esc(e.node) : '') + '</span><br>' + esc(e.text || '') + '</div>';
+      }));
+    return html;
+  }
+  function renderViz(){
+    var v = state.viz;
+    if (!v || !v.ready){
+      el.lifeBody.innerHTML = '<div class="vempty">大脑还没启动，等几秒再刷新。</div>';
+      return;
+    }
+    el.lifeBody.innerHTML = renderLife(v) +
+      '<div class="vhead" style="padding-top:8px"><b>关系网</b></div>' + renderSocial(v);
+  }
+  async function loadLife(){
+    try{
+      var r = await fetch('/api/viz', {cache: 'no-store'});
+      if (r.ok) state.viz = await r.json();
+    }catch(e){
+      el.lifeBody.innerHTML = '<div class="vempty">可视化数据加载失败</div>';
+      return;
+    }
+    try{
+      var h = await fetch('/api/health', {cache: 'no-store'});
+      if (h.ok) state.health = await h.json();
+    }catch(e){}
+    renderViz();
+  }
+  var fullOn = true;
+  var fullDirPath = '';
+  function parentBridge(){
+    try{ if (window.Android) return window.Android; }catch(e){}
+    try{
+      if (window.parent && window.parent !== window && window.parent.Android){
+        return window.parent.Android;
+      }
+    }catch(e){}
+    return null;
+  }
+  function fmtBytes(n){
+    n = Number(n || 0);
+    if (n >= 1024 * 1024) return (n / 1024 / 1024).toFixed(1) + ' MB';
+    if (n >= 1024) return (n / 1024).toFixed(0) + ' KB';
+    return n + ' B';
+  }
+  async function loadFull(){
+    try{
+      var d = await api('/api/memory/full');
+      if (!d || d.ok !== true) return;
+      fullOn = !!d.on;
+      el.fullState.textContent = d.on ? '已开启 · 额外留档' : '已关闭';
+      el.fullInfo.textContent = d.files ? (d.files + ' 个留档 · ' + fmtBytes(d.bytes)) : '暂无留档';
+      fullDirPath = d.dir || '';
+      el.fullDir.textContent = fullDirPath || '—';
+      var bridge = parentBridge();
+      if (el.fullDirPick) el.fullDirPick.hidden = !(bridge && bridge.chooseDirectory);
+      el.fullToggle.textContent = d.on ? '关闭全量记忆' : '开启全量记忆';
+      el.fullToggle.className = 'btn ' + (d.on ? '' : 'accent');
+    }catch(e){}
+  }
+  async function toggleFull(){
+    var next = !fullOn;
+    el.fullToggle.disabled = true;
+    el.fullToggle.textContent = '正在保存…';
+    try{
+      var d = await api('/api/memory/full', {on: next});
+      if (d && d.ok){
+        fullOn = !!d.on;
+        toast(d.on ? '全量记忆已开启：从现在起不再遗忘' : '全量记忆已关闭：回到原来的遗忘策略');
+      } else {
+        toast('保存失败，请重试', true);
+      }
+    }catch(e){ toast('保存失败，请重试', true); }
+    el.fullToggle.disabled = false;
+    loadFull();
+  }
+  async function pickFullDir(){
+    var bridge = parentBridge();
+    if (!bridge || !bridge.chooseDirectory) return;
+    var oldText = el.fullDirPick.textContent;
+    el.fullDirPick.disabled = true;
+    el.fullDirPick.textContent = '选择中…';
+    try{
+      var picked = await bridge.chooseDirectory(fullDirPath);
+      if (picked){
+        var d = await api('/api/memory/full', {on: fullOn, dir: picked});
+        if (d && d.ok){
+          var moved = Number(d.dir_copied || 0);
+          toast('存档目录已切换' + (moved ? '，已复制 ' + moved + ' 个旧留档' : ''));
+        } else {
+          toast('目录保存失败，请重试', true);
+        }
+      }
+    }catch(e){ toast('目录保存失败，请重试', true); }
+    finally{
+      el.fullDirPick.disabled = false;
+      el.fullDirPick.textContent = oldText || '选择目录';
+      loadFull();
+    }
+  }
+  async function extractFull(){
+    el.fullExtract.disabled = true;
+    el.fullExtract.textContent = '正在打包记忆…';
+    try{
+      var d = await api('/api/memory/extract', {});
+      if (!d || d.ok !== true){
+        toast('提取失败：' + ((d && (d.error || d.message)) || '打包没成功'), true);
+        return;
+      }
+      var bridge = parentBridge();
+      if (bridge && bridge.saveMemoryExport){
+        var picked;
+        try{ picked = bridge.saveMemoryExport(d.path, d.name); }catch(e){}
+        if (picked && typeof picked.then === 'function'){
+          picked.then(function(res){
+            if (res && res.ok){
+              toast('记忆已存入：' + (res.dir || res.path));
+              loadFull();
+            } else if (res && res.canceled) toast('已取消保存');
+            else toast('保存失败：' + ((res && res.error) || '请重试'), true);
+          }).catch(function(){ toast('保存失败，请重试', true); });
+        } else if (picked === false || picked == null){
+          toast('没能打开文件夹选择，请重试', true);
+        }
+      } else {
+        var a = document.createElement('a');
+        a.href = '/api/memory/extract/download?name=' + encodeURIComponent(d.name);
+        a.download = d.name;
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+    }catch(e){ toast('提取失败，请重试', true); }
+    /* 无论成功、取消还是失败，都要把按钮恢复，否则会一直卡在“正在打包” */
+    el.fullExtract.disabled = false;
+    el.fullExtract.textContent = '提取记忆到 U 盘 / 高速磁盘';
+  }
+  window.__onMemoryExported = function(ok){
+    toast(ok ? '记忆已提取，可以拔下 U 盘收好' : '没有写入成功，再试一次', !ok);
+    loadFull();
+  };
+  if (el.fullToggle) el.fullToggle.addEventListener('click', toggleFull);
+  if (el.fullDirPick) el.fullDirPick.addEventListener('click', pickFullDir);
+  if (el.fullExtract) el.fullExtract.addEventListener('click', extractFull);
+
+  function switchTab(tab){
+    state.tab = tab;
+    if (el.tabs){
+      Array.prototype.forEach.call(el.tabs.children, function(b){
+        b.classList.toggle('on', b.getAttribute('data-tab') === tab);
+      });
+    }
+    el.memoryView.hidden = tab !== 'memory';
+    el.lifeView.hidden = tab !== 'life';
+    el.fullView.hidden = tab !== 'full';
+    el.rebuild.hidden = tab !== 'memory';
+    if (tab === 'life'){
+      loadLife();
+      if (state.lifeTimer) clearInterval(state.lifeTimer);
+      state.lifeTimer = setInterval(loadLife, 10000);
+    } else {
+      if (state.lifeTimer){ clearInterval(state.lifeTimer); state.lifeTimer = null; }
+      if (tab === 'full'){ loadFull(); }
+      else { load(); }
+    }
+  }
+
+  /* 被设置页内嵌时：隐藏自己的顶栏（父页面已经有返回和操作），返回交给父页面关浮层 */
+  var embedded = (window.self !== window.top);
+  if (embedded){
+    document.documentElement.classList.add('embed');
+    var backLink = document.querySelector('.back');
+    if (backLink){
+      backLink.addEventListener('click', function(e){
+        e.preventDefault();
+        try{ parent.postMessage({type: 'close-memory'}, '*'); }catch(err){}
+      });
+    }
+  }
+  window.__androidBack = function(){
+    if (embedded){
+      try{ parent.postMessage({type: 'close-memory'}, '*'); }catch(err){}
+      return true;
+    }
+    return false;
+  };
+
+  /* 首次加载 */
+  switchTab('memory');
+})();
+</script>
+</body>
+</html>
