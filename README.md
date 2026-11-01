@@ -53,7 +53,9 @@ Windows 桌面版 · Android
 
 ### Android
 
-Android 源码在 `android/`，构建需要 JDK 17、Android SDK 和 Chaquopy，详见 [docs/BUILD_ANDROID.md](docs/BUILD_ANDROID.md)。
+1. 从 [Releases](https://github.com/yuan10-06/xiaojingyu/releases/latest) 下载 `xiaojingyu-v9.10.apk`。
+2. 允许“安装未知应用”后安装。
+3. 源码构建需要 JDK 17、Android SDK 和 Chaquopy，详见 [docs/BUILD_ANDROID.md](docs/BUILD_ANDROID.md)。
 
 ## 从源码运行
 

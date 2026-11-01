@@ -7,8 +7,9 @@
 | 平台 | 文件 | SHA256 |
 |---|---|---|
 | Windows | xiaojingyu-Setup-v9.10.exe | 1D8BC87A63A1E25695DFEF1F94419E774DA5851DF8417B1662561FF94A04EE67 |
+| Android | xiaojingyu-v9.10.apk | EAF413469299F7584BA79F13F41135FAA8127801B72E5F3F14880FED77274560 |
 
-> Android 源码在 `android/`，构建方法见 `docs/BUILD_ANDROID.md`。本 Release 暂只提供 Windows 安装包。
+> Android 源码在 `android/`，构建方法见 `docs/BUILD_ANDROID.md`。
 
 ## 本次更新
 
@@ -21,10 +22,18 @@
 
 ## 安装说明
 
-1. 下载安装包。
+### Windows
+
+1. 下载 `xiaojingyu-Setup-v9.10.exe`。
 2. 安装包未签名，Windows SmartScreen 提示时选择“更多信息 → 仍要运行”。
 3. 安装时会重置初始人设；聊天记录和记忆库不会被删除。
 4. 首次启动填入 DeepSeek API Key，也可以先跳过。
+
+### Android
+
+1. 下载 `xiaojingyu-v9.10.apk`。
+2. 允许“安装未知应用”后安装。
+3. 首次启动填入 DeepSeek API Key，也可以先跳过。
 
 数据默认保存在 `%LOCALAPPDATA%\BrainN`。
 
