@@ -9,6 +9,8 @@
 Windows 桌面版 · Android
 
 [下载 Windows 安装包](https://github.com/yuan10-06/xiaojingyu/releases/latest) ·
+[下载 Android APK](https://github.com/yuan10-06/xiaojingyu/releases/latest) ·
+[B站演示](https://www.bilibili.com/video/BV1icxt6iETG/) ·
 [快速开始](#快速开始) ·
 [架构说明](docs/ARCHITECTURE.md) ·
 [常见问题](docs/FAQ.md) ·
