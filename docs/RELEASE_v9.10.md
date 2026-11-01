@@ -6,7 +6,7 @@
 
 | 平台 | 文件 | SHA256 |
 |---|---|---|
-| Windows | 小鲸鱼-Setup-新用户版-v9.10.exe | 1D8BC87A63A1E25695DFEF1F94419E774DA5851DF8417B1662561FF94A04EE67 |
+| Windows | xiaojingyu-Setup-v9.10.exe | 1D8BC87A63A1E25695DFEF1F94419E774DA5851DF8417B1662561FF94A04EE67 |
 
 > Android 源码在 `android/`，构建方法见 `docs/BUILD_ANDROID.md`。本 Release 暂只提供 Windows 安装包。
 

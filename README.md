@@ -46,7 +46,7 @@ Windows 桌面版 · Android
 
 ### Windows
 
-1. 从 [Releases](https://github.com/yuan10-06/xiaojingyu/releases/latest) 下载 `小鲸鱼-Setup-新用户版-v9.10.exe`。
+1. 从 [Releases](https://github.com/yuan10-06/xiaojingyu/releases/latest) 下载 `xiaojingyu-Setup-v9.10.exe`。
 2. 安装。安装包未签名，SmartScreen 提示时选择“更多信息 → 仍要运行”。
 3. 启动后填入 DeepSeek API Key；也可以先跳过，之后再补。
 4. 安装时会重置初始人设，聊天记录和记忆库不会被删除。
