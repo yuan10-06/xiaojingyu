@@ -71,6 +71,7 @@ mobile/web/whale/fonts/
 mobile/web/whale/live2dcubismcore.min.js
 
 # 运行临时目录
+.desktop_runtime/
 mobile/_life_tmp/
 mobile/logs/
 _tmp/
