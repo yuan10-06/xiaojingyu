@@ -74,4 +74,5 @@ mobile/web/whale/live2dcubismcore.min.js
 .desktop_runtime/
 mobile/_life_tmp/
 mobile/logs/
+mobile/serve_*.py
 _tmp/
