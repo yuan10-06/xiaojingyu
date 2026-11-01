@@ -8,7 +8,7 @@
 
 Windows 桌面版 · Android
 
-[下载 Windows 安装包](https://github.com/OWNER/xiaojingyu/releases/latest) ·
+[下载 Windows 安装包](https://github.com/yuan10-06/xiaojingyu/releases/latest) ·
 [快速开始](#快速开始) ·
 [架构说明](docs/ARCHITECTURE.md) ·
 [常见问题](docs/FAQ.md) ·
@@ -46,7 +46,7 @@ Windows 桌面版 · Android
 
 ### Windows
 
-1. 从 [Releases](https://github.com/OWNER/xiaojingyu/releases/latest) 下载 `小鲸鱼-Setup-新用户版-v9.10.exe`。
+1. 从 [Releases](https://github.com/yuan10-06/xiaojingyu/releases/latest) 下载 `小鲸鱼-Setup-新用户版-v9.10.exe`。
 2. 安装。安装包未签名，SmartScreen 提示时选择“更多信息 → 仍要运行”。
 3. 启动后填入 DeepSeek API Key；也可以先跳过，之后再补。
 4. 安装时会重置初始人设，聊天记录和记忆库不会被删除。
@@ -58,7 +58,7 @@ Android 源码在 `android/`，构建需要 JDK 17、Android SDK 和 Chaquopy，
 ## 从源码运行
 
 ```bash
-git clone https://github.com/OWNER/xiaojingyu.git
+git clone https://github.com/yuan10-06/xiaojingyu.git
 cd xiaojingyu
 python -m venv .venv
 .venv\Scripts\activate
